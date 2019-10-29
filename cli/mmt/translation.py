@@ -95,11 +95,13 @@ class TranslateEngine(object):
 
 class ModernMTTranslate(TranslateEngine):
     def __init__(self, node, source_lang, target_lang, priority=None,
-                 context_vector=None, context_file=None, context_string=None):
+                 context_vector=None, context_file=None, context_string=None,
+                 terminology_vector=None):
         TranslateEngine.__init__(self, source_lang, target_lang)
         self._api = node.api
         self._priority = EngineNode.RestApi.PRIORITY_BACKGROUND if priority is None else priority
         self._context = None
+        self._terminology = None
 
         if context_vector is None:
             if context_file is not None:
@@ -108,6 +110,9 @@ class ModernMTTranslate(TranslateEngine):
                 self._context = self._api.get_context_s(self.source_lang, self.target_lang, context_string)
         else:
             self._context = self._parse_context_vector(context_vector)
+
+        if terminology_vector is not None:
+            self._terminology = self._parse_terminology_vector(terminology_vector)
 
     def _get_default_threads(self):
         executors = max(len(nvidia_smi.list_gpus()), 1)
@@ -120,8 +125,13 @@ class ModernMTTranslate(TranslateEngine):
     def context_vector(self):
         return [x.copy() for x in self._context] if self._context is not None else None
 
+    @property
+    def terminology_vector(self):
+        return [x.copy() for x in self._terminology] if self._terminology is not None else None
+
+
     @staticmethod
-    def _parse_context_vector(text):
+    def _parse_context_vector(text,terminology=False):
         context = []
 
         try:
@@ -131,12 +141,17 @@ class ModernMTTranslate(TranslateEngine):
 
                 context.append({
                     'memory': int(_id),
-                    'score': value
+                    'score': value,
+                    'terminology': terminology
                 })
         except ValueError:
             raise ValueError('invalid context weights map: ' + text)
 
         return context
+
+    @staticmethod
+    def _parse_terminology_vector(text):
+        return ModernMTTranslate._parse_context_vector(text,True)
 
     @property
     def name(self):
@@ -148,7 +163,7 @@ class ModernMTTranslate(TranslateEngine):
                 text = text[:4096]
 
             translation = self._api.translate(self.source_lang, self.target_lang, text,
-                                              context=self._context, priority=self._priority)
+                                              context=self._context, terminology=self._terminology, priority=self._priority)
         except requests.exceptions.ConnectionError:
             raise TranslateError('Unable to connect to ModernMT. '
                                  'Please check if engine is running on port %d.' % self._api.port)
@@ -159,11 +174,15 @@ class ModernMTTranslate(TranslateEngine):
 
     def translate_file(self, input_file, output_file, threads=None):
         reset_context = False
+        reset_terminology = False
 
         try:
             if self._context is None:
                 reset_context = True
                 self._context = self._api.get_context_f(self.source_lang, self.target_lang, input_file)
+
+            if self._terminology is not None:
+                reset_terminology = True
 
             return super(ModernMTTranslate, self).translate_file(input_file, output_file, threads=threads)
         except requests.exceptions.ConnectionError:
@@ -174,6 +193,8 @@ class ModernMTTranslate(TranslateEngine):
         finally:
             if reset_context:
                 self._context = None
+            if reset_terminology:
+                self._terminology = None
 
 
 class GoogleRateLimitError(TranslateError):

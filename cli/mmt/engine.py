@@ -199,6 +199,14 @@ class _RestApi(object):
         scores = [(m['id'] if isinstance(m, dict) else m, s) for m, s in scores]
         return ','.join(['%d:%f' % e for e in scores])
 
+
+    @staticmethod
+    def _encode_terminology(terminology):
+        scores = [(e['memory'], e['score']) for e in terminology if 'memory' in e]
+        scores = [(m['id'] if isinstance(m, dict) else m, s) for m, s in scores]
+        return ','.join(['%d:%f' % e for e in scores])
+
+
     def info(self):
         return self._get('')
 
@@ -232,12 +240,14 @@ class _RestApi(object):
     def health_check(self):
         return self._get('_health')
 
-    def translate(self, source, target, text, context=None, nbest=None, verbose=False, priority=None, user=None):
+    def translate(self, source, target, text, context=None, terminology=None, nbest=None, verbose=False, priority=None, user=None):
         p = {'q': text, 'source': source, 'target': target}
         if nbest is not None:
             p['nbest'] = nbest
         if context is not None and len(context) > 0:
             p['context_vector'] = self._encode_context(context)
+        if terminology is not None and len(terminology) > 0:
+            p['terminology_vector'] = self._encode_terminology(terminology)
         if verbose:
             p['verbose'] = 'true'
         if priority is not None:

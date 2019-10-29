@@ -15,6 +15,6 @@ public interface DecoderWithNBest {
 
     Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, int nbestListSize, long expiration) throws DecoderException;
 
-    Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, ContextVector contextVector, int nbestListSize, long expiration) throws DecoderException;
+    Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, ContextVector contextVector, ContextVector terminologyVector, int nbestListSize, long expiration) throws DecoderException;
 
 }

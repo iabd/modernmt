@@ -15,6 +15,7 @@ import java.util.UUID;
 public interface TranslationMemory extends Closeable, DataListener {
 
     ScoreEntry[] search(UUID user, LanguageDirection direction, Sentence source, ContextVector contextVector, int limit) throws IOException;
+    ScoreEntry[] terminologySearch(UUID user, LanguageDirection direction, Sentence source, ContextVector contextVector, int limit) throws IOException;
 
     int size();
 

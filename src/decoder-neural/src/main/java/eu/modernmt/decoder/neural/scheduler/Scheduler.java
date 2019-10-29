@@ -31,6 +31,8 @@ public interface Scheduler extends Closeable {
 
         Collection<ScoreEntry> getSuggestions();
 
+        Collection<ScoreEntry> getTerminologies();
+
         void onStartWaitingInQueue(int queueSize);
     }
 
@@ -40,10 +42,11 @@ public interface Scheduler extends Closeable {
      * @param direction   the language direction of the translation splits
      * @param splits      the translation splits to be translated
      * @param suggestions the suggestions to use to tune the engine
+     * @param terminologies the terminologies to use to tune the engine
      * @return a {@link TranslationLock} that will unlock when all the translation splits have completed
      * @throws DecoderUnavailableException if there are too many pending translation jobs or the Scheduler has been closed
      */
-    TranslationLock schedule(LanguageDirection direction, TranslationSplit[] splits, ScoreEntry[] suggestions) throws DecoderUnavailableException;
+    TranslationLock schedule(LanguageDirection direction, TranslationSplit[] splits, ScoreEntry[] suggestions, ScoreEntry[] terminologies) throws DecoderUnavailableException;
 
     /**
      * Schedule a a single translation split to be aligned with the given translation at some point in the future.

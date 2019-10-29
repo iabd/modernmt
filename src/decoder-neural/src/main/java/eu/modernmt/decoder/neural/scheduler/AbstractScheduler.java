@@ -1,6 +1,8 @@
 package eu.modernmt.decoder.neural.scheduler;
 
 import eu.modernmt.decoder.DecoderUnavailableException;
+import eu.modernmt.lang.LanguageDirection;
+import eu.modernmt.memory.ScoreEntry;
 
 import java.util.Queue;
 import java.util.concurrent.locks.Condition;
@@ -66,4 +68,5 @@ public abstract class AbstractScheduler<T extends Scheduler.Job> implements Sche
         }
     }
 
+//    public abstract TranslationLock schedule(LanguageDirection direction, TranslationSplit[] splits, ScoreEntry[] suggestions, ScoreEntry[] terminologies) throws DecoderUnavailableException;
 }

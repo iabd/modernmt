@@ -16,6 +16,8 @@ import eu.modernmt.model.Priority;
 import eu.modernmt.persistence.PersistenceException;
 import eu.modernmt.processing.ProcessingException;
 import eu.modernmt.processing.xml.format.InputFormat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
@@ -24,6 +26,7 @@ import java.util.UUID;
  */
 @Route(aliases = "translate", method = HttpMethod.GET)
 public class Translate extends ObjectAction<TranslationResponse> {
+
 
     public static final int MAX_QUERY_LENGTH = 5000;
 
@@ -34,18 +37,20 @@ public class Translate extends ObjectAction<TranslationResponse> {
         TranslationResponse result = new TranslationResponse(params.priority);
         result.verbose = params.verbose;
 
-        if (params.context != null) {
-            result.translation = ModernMT.translation.get(params.user, params.direction, params.format, params.query, params.context, params.nbest, params.priority, params.timeout);
-        } else if (params.contextString != null) {
+        if (params.contextString != null) {
             result.context = ModernMT.translation.getContextVector(params.user, params.direction, params.contextString, params.contextLimit);
-            result.translation = ModernMT.translation.get(params.user, params.direction, params.format, params.query, result.context, params.nbest, params.priority, params.timeout);
         } else {
-            result.translation = ModernMT.translation.get(params.user, params.direction, params.format, params.query, params.nbest, params.priority, params.timeout);
+            result.context = params.context;
         }
+        result.terminology = params.terminology;
 
+        result.translation = ModernMT.translation.get(params.user, params.direction, params.format, params.query, result.context, result.terminology, params.nbest, params.priority, params.timeout);
 
         if (result.context != null)
             ContextUtils.resolve(result.context);
+
+        if (result.terminology != null)
+            ContextUtils.resolve(result.terminology);
 
         return result;
     }
@@ -56,6 +61,7 @@ public class Translate extends ObjectAction<TranslationResponse> {
     }
 
     public static class Params extends Parameters {
+        private final Logger logger = LogManager.getLogger(getClass());
 
         public final InputFormat.Type format;
         public final UUID user;
@@ -63,6 +69,7 @@ public class Translate extends ObjectAction<TranslationResponse> {
         public final String query;
         public final ContextVector context;
         public final String contextString;
+        public final ContextVector terminology;
         public final int contextLimit;
         public final int nbest;
         public final Priority priority;
@@ -92,15 +99,29 @@ public class Translate extends ObjectAction<TranslationResponse> {
             verbose = getBoolean("verbose", false);
             timeout = getLong("timeout", 0L);
 
-            String weights = getString("context_vector", false, null);
+            String terminologyWeights = getString("terminology_vector", false, null);
 
-            if (weights != null) {
-                context = ContextUtils.parseParameter("context_vector", weights);
+            if (terminologyWeights != null) {
+                terminology = ContextUtils.parseParameter("terminology_vector", terminologyWeights);
+            } else {
+                terminology = null;
+            }
+            logger.debug("Params terminology:" + terminology);
+
+            String  contextWeights = getString("context_vector", false, null);
+
+            if (contextWeights != null) {
+                context = ContextUtils.parseParameter("context_vector", contextWeights);
                 contextString = null;
             } else {
                 context = null;
                 contextString = getString("context", false, null);
             }
+            logger.debug("Params context:" + context);
+            logger.debug("Params contextString:" + contextString);
+
+
+
         }
     }
 }

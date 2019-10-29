@@ -26,6 +26,7 @@ public class Translation extends Sentence {
 
     // Statistics
     private long memoryLookupTime;
+    private long terminologyLookupTime;
     private long decodeTime;
     private long queueTime;
     private int queueLength;
@@ -49,6 +50,14 @@ public class Translation extends Sentence {
 
     public void setMemoryLookupTime(long memoryLookupTime) {
         this.memoryLookupTime = memoryLookupTime;
+    }
+
+    public long getTerminologyLookupTime() {
+        return terminologyLookupTime;
+    }
+
+    public void setTerminologyLookupTime(long terminologyLookupTime) {
+        this.terminologyLookupTime = terminologyLookupTime;
     }
 
     public long getDecodeTime() {

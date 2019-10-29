@@ -30,15 +30,22 @@ public class DecoderExecutorImpl implements DecoderExecutor {
     }
 
     @Override
-    public void translate(PythonDecoder decoder, LanguageDirection language, List<TranslationSplit> splits, Collection<ScoreEntry> suggestions) throws DecoderException {
+    public void translate(PythonDecoder decoder, LanguageDirection language, List<TranslationSplit> splits, Collection<ScoreEntry> suggestions, Collection<ScoreEntry> terminologies) throws DecoderException {
         Sentence[] sentences = mergeSentences(splits);
         Translation[] translations;
 
-        if (suggestions == null || suggestions.isEmpty()) {
-            translations = decoder.translate(language, sentences, 0);
+        if ((suggestions == null || suggestions.isEmpty()) && (terminologies == null || terminologies.isEmpty())){
+            translations = decoder.translate(language, sentences, null, null, 0);
         } else {
-            ScoreEntry[] suggestionArray = suggestions.toArray(new ScoreEntry[0]);
-            translations = decoder.translate(language, sentences, suggestionArray, 0);
+            ScoreEntry[] suggestionArray = null;
+            ScoreEntry[] terminologiesArray = null;
+            if (suggestions != null  && !suggestions.isEmpty())
+                suggestionArray = suggestions.toArray(new ScoreEntry[0]);
+
+            if (terminologies != null  && !terminologies.isEmpty())
+                terminologiesArray = terminologies.toArray(new ScoreEntry[0]);
+
+            translations = decoder.translate(language, sentences, suggestionArray, terminologiesArray, 0);
         }
 
         int i = 0;

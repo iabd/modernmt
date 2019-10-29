@@ -29,7 +29,7 @@ public abstract class Decoder implements Closeable {
 
     public abstract Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, long expiration) throws DecoderException;
 
-    public abstract Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, ContextVector contextVector, long expiration) throws DecoderException;
+    public abstract Translation translate(Priority priority, UUID user, LanguageDirection direction, Sentence text, ContextVector contextVector, ContextVector terminologyVector, long expiration) throws DecoderException;
 
     public abstract void test() throws DecoderException;
 

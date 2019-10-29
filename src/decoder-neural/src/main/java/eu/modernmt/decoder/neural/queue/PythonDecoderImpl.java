@@ -12,6 +12,8 @@ import eu.modernmt.model.Translation;
 import eu.modernmt.model.Word;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class PythonDecoderImpl extends PythonProcess implements PythonDecoder {
 
+    private final Logger logger = LogManager.getLogger(getClass());
     public static class Builder implements PythonDecoder.Builder {
 
         private final String pythonExec;
@@ -144,24 +147,24 @@ public class PythonDecoderImpl extends PythonProcess implements PythonDecoder {
     }
 
     @Override
-    public Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, int nBest) throws DecoderException {
-        return this.translate(direction, new Sentence[]{sentence}, suggestions, nBest)[0];
+    public Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) throws DecoderException {
+        return this.translate(direction, new Sentence[]{sentence}, suggestions, terminologies, nBest)[0];
     }
 
     @Override
     public Translation[] translate(LanguageDirection direction, Sentence[] sentences, int nBest) throws DecoderException {
-        return this.translate(sentences, serialize(direction, sentences, null, null));
+        return this.translate(sentences, serialize(direction, sentences, null, null, null));
     }
 
     @Override
-    public Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, int nBest) throws DecoderException {
-        return this.translate(sentences, serialize(direction, sentences, suggestions, null));
+    public Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) throws DecoderException {
+        return this.translate(sentences, serialize(direction, sentences, suggestions, terminologies, null));
     }
 
     @Override
     public Translation align(LanguageDirection direction, Sentence sentence, String[] translation) throws DecoderException {
         Sentence[] sentences = new Sentence[]{sentence};
-        return this.translate(sentences, serialize(direction, sentences, null, translation))[0];
+        return this.translate(sentences, serialize(direction, sentences, null, null, translation))[0];
     }
 
     @Override
@@ -200,7 +203,11 @@ public class PythonDecoderImpl extends PythonProcess implements PythonDecoder {
         }
     }
 
-    private String serialize(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, String[] forcedTranslation) {
+    private String serialize(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, ScoreEntry[] terminologies, String[] forcedTranslation) {
+
+        logger.debug("PythonDecoderImpl private String serialize suggestions:" + suggestions);
+        logger.debug("PythonDecoderImpl private String serialize terminologies:" + terminologies);
+
         String[] serialized = new String[sentences.length];
         for (int i = 0; i < serialized.length; i++)
             serialized[i] = TokensOutputStream.serialize(sentences[i], false, true);
@@ -231,11 +238,30 @@ public class PythonDecoderImpl extends PythonProcess implements PythonDecoder {
             json.add("hints", array);
         }
 
+
+        if (terminologies != null && terminologies.length > 0) {
+            JsonArray array = new JsonArray();
+
+            for (ScoreEntry entry : terminologies) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("sl", entry.language.source.toLanguageTag());
+                obj.addProperty("tl", entry.language.target.toLanguageTag());
+                obj.addProperty("seg", StringUtils.join(entry.sentence, ' '));
+                obj.addProperty("tra", StringUtils.join(entry.translation, ' '));
+                obj.addProperty("scr", entry.score);
+
+                array.add(obj);
+            }
+
+            json.add("terminologies", array);
+        }
+
         return json.toString().replace('\n', ' ');
     }
 
     private Translation[] deserialize(String response, Sentence[] sentences) throws IOException, DecoderException {
         JsonObject json;
+        logger.debug("PythonDecoderImpl private Translation[] deserialize response:" + response );
         try {
             json = parser.parse(response).getAsJsonObject();
         } catch (JsonSyntaxException e) {
@@ -256,6 +282,8 @@ public class PythonDecoderImpl extends PythonProcess implements PythonDecoder {
                 Alignment alignment = jsonAlignment == null ? null : parseAlignment(jsonAlignment.getAsJsonArray());
 
                 translations[i] = new Translation(words, sentences[i], alignment);
+
+                logger.debug("PythonDecoderImpl private Translation[] deserialize translations[i]:" + translations[i] );
             }
 
             return translations;

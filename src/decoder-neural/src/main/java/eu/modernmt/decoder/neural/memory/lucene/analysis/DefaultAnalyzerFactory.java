@@ -28,6 +28,11 @@ public class DefaultAnalyzerFactory implements AnalyzerFactory {
     }
 
     @Override
+    public Analyzer createTerminologyAnalyzer() {
+        return new ContentAnalyzer(0, false);
+    }
+
+    @Override
     public Similarity createSimilarity() {
         return new CustomSimilarity();
     }

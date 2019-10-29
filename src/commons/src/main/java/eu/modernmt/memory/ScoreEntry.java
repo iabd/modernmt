@@ -15,14 +15,20 @@ public class ScoreEntry implements Comparable<ScoreEntry> {
     public final String[] sentence;
     public final String[] translation;
 
+    public boolean terminology;
     public float auxiliaryScore = 0.f;
     public float score = 0.f;
 
     public ScoreEntry(long memory, LanguageDirection language, String[] sentence, String[] translation) {
+        this(memory, language, sentence, translation, false);
+    }
+
+    public ScoreEntry(long memory, LanguageDirection language, String[] sentence, String[] translation, boolean terminology) {
         this.memory = memory;
         this.language = language;
         this.sentence = sentence;
         this.translation = translation;
+        this.terminology = terminology;
     }
 
     @Override
@@ -57,6 +63,7 @@ public class ScoreEntry implements Comparable<ScoreEntry> {
                 ", sentence=" + Arrays.toString(sentence) +
                 ", translation=" + Arrays.toString(translation) +
                 ", score=" + score +
+                ", terminology=" + terminology +
                 '}';
     }
 

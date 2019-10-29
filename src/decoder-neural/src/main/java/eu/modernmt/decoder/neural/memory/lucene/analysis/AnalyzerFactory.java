@@ -13,6 +13,8 @@ public interface AnalyzerFactory {
 
     Analyzer createLongQueryAnalyzer();
 
+    Analyzer createTerminologyAnalyzer();
+
     Similarity createSimilarity();
 
 }

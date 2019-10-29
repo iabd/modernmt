@@ -25,11 +25,11 @@ public interface PythonDecoder extends Closeable {
 
     Translation translate(LanguageDirection direction, Sentence sentence, int nBest) throws DecoderException;
 
-    Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, int nBest) throws DecoderException;
+    Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) throws DecoderException;
 
     Translation[] translate(LanguageDirection direction, Sentence[] sentences, int nBest) throws DecoderException;
 
-    Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, int nBest) throws DecoderException;
+    Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) throws DecoderException;
 
     Translation align(LanguageDirection direction, Sentence sentence, String[] translation) throws DecoderException;
 

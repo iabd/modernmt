@@ -22,12 +22,12 @@ public class EchoPythonDecoder implements PythonDecoder {
 
     @Override
     public Translation translate(LanguageDirection direction, Sentence sentence, int nBest) {
-        return translate(direction, sentence, null, nBest);
+        return translate(direction, sentence, null, null, nBest);
     }
 
     @Override
-    public Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, int nBest) {
-        if (suggestions != null && suggestions.length > 0)
+    public Translation translate(LanguageDirection direction, Sentence sentence, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) {
+        if ((suggestions != null && suggestions.length > 0) && (terminologies != null && terminologies.length > 0))
             return Translation.fromTokens(sentence, suggestions[0].translation);
         else
             return Translation.fromTokens(sentence, TokensOutputStream.tokens(sentence, false, true));
@@ -37,18 +37,18 @@ public class EchoPythonDecoder implements PythonDecoder {
     public Translation[] translate(LanguageDirection direction, Sentence[] sentences, int nBest) {
         Translation[] result = new Translation[sentences.length];
         for (int i = 0; i < result.length; i++)
-            result[i] = translate(direction, sentences[i], null, nBest);
+            result[i] = translate(direction, sentences[i], null, null, nBest);
         return result;
     }
 
     @Override
-    public Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, int nBest) {
+    public Translation[] translate(LanguageDirection direction, Sentence[] sentences, ScoreEntry[] suggestions, ScoreEntry[] terminologies, int nBest) {
         if (sentences.length > 1 && suggestions != null && suggestions.length > 0)
-            throw new UnsupportedOperationException("Echo server does not support batching with suggestions");
+            throw new UnsupportedOperationException("Echo server does not support batching with suggestions or terminologies");
 
         Translation[] result = new Translation[sentences.length];
         for (int i = 0; i < result.length; i++)
-            result[i] = translate(direction, sentences[i], suggestions, nBest);
+            result[i] = translate(direction, sentences[i], suggestions, terminologies, nBest);
         return result;
     }
 

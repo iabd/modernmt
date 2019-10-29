@@ -68,6 +68,13 @@ class InteractiveTranslator(Translator):
         else:
             print('>> No context provided.')
 
+        if isinstance(engine, ModernMTTranslate) and engine.terminology_vector:
+            print('>> Terminology:', ', '.join(
+                ['%s %.f%%' % (self._memory_to_string(score['memory']), score['score'] * 100)
+                 for score in engine.terminology_vector]))
+        else:
+            print('>> No terminology provided.')
+
         print(flush=True)
 
     @staticmethod
@@ -113,6 +120,10 @@ def parse_args(argv=None):
     parser.add_argument('--context-vector', metavar='CONTEXT_VECTOR', dest='context_vector',
                         help='The context vector with format: <document 1>:<score 1>[,<document N>:<score N>]')
 
+    # Terminology arguments
+    parser.add_argument('--terminology-vector', metavar='TERMINOLOGY_VECTOR', dest='terminology_vector',
+                        help='The terminology vector with format: <document 1>:<score 1>[,<document N>:<score N>]')
+
     # Mixed arguments
     parser.add_argument('-e', '--engine', dest='engine', help='the engine name, \'default\' will be used if absent',
                         default='default')
@@ -146,7 +157,8 @@ def main(argv=None):
     ensure_node_has_api(node)
 
     mmt = ModernMTTranslate(node, args.source_lang, args.target_lang, context_string=args.context,
-                            context_file=args.context_file, context_vector=args.context_vector)
+                            context_file=args.context_file, context_vector=args.context_vector,
+                            terminology_vector=args.terminology_vector)
 
     if args.text is not None:
         print(mmt.translate_text(args.text.strip()))

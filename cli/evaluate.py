@@ -113,7 +113,7 @@ class EvaluateActivity(StatefulActivity):
 
         mmt = ModernMTTranslate(mmt_node, args.src_lang, args.tgt_lang, priority='background',
                                 context_string=args.context, context_file=args.context_file,
-                                context_vector=args.context_vector)
+                                context_vector=args.context_vector, terminology_vector=args.terminology_vector)
 
         self.state.scores = [MatecatScore(), BLEUScore()]
         try:
@@ -277,6 +277,10 @@ def parse_args(argv=None):
                         help='A local file to be used as translation context')
     parser.add_argument('--context-vector', metavar='CONTEXT_VECTOR', dest='context_vector',
                         help='The context vector with format: <document 1>:<score 1>[,<document N>:<score N>]')
+
+    # Terminology arguments
+    parser.add_argument('--terminology-vector', metavar='TERMINOLOGY_VECTOR', dest='terminology_vector',
+                        help='The terminology vector with format: <document 1>:<score 1>[,<document N>:<score N>]')
 
     args = parser.parse_args(argv)
 

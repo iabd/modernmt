@@ -11,6 +11,7 @@ public class TranslationResponse {
 
     public Translation translation = null;
     public ContextVector context = null;
+    public ContextVector terminology = null;
     public boolean verbose = false;
     public final Priority priority;
 

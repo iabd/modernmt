@@ -62,18 +62,22 @@ public class TranslationFacade {
     // =============================
 
     public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, Priority priority, long timeout) throws ProcessingException, DecoderException {
-        return get(user, direction, format, text, null, 0, priority, timeout);
+        return get(user, direction, format, text, null, null, 0, priority, timeout);
     }
 
-    public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, ContextVector translationContext, Priority priority, long timeout) throws ProcessingException, DecoderException {
-        return get(user, direction, format, text, translationContext, 0, priority, timeout);
+    public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, ContextVector translationContext, ContextVector terminologyContext, Priority priority, long timeout) throws ProcessingException, DecoderException {
+        return get(user, direction, format, text, translationContext, terminologyContext,0, priority, timeout);
     }
 
     public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, int nbest, Priority priority, long timeout) throws ProcessingException, DecoderException {
-        return get(user, direction, format, text, null, nbest, priority, timeout);
+        return get(user, direction, format, text, null, null, nbest, priority, timeout);
     }
 
-    public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, ContextVector translationContext, int nbest, Priority priority, long timeout) throws ProcessingException, DecoderException {
+    public Translation get(UUID user, LanguageDirection direction, InputFormat.Type format, String text, ContextVector translationContext, ContextVector terminologyContext, int nbest, Priority priority, long timeout) throws ProcessingException, DecoderException {
+
+
+        logger.debug("TranslationFacade public Translation get translationContext:" + translationContext);
+        logger.debug("TranslationFacade public Translation get terminologyContext:" + terminologyContext);
         direction = mapLanguage(direction);
         if (nbest > 0)
             ensureDecoderSupportsNBest();
@@ -90,7 +94,7 @@ public class TranslationFacade {
         long expirationTimestamp = timeout > 0 ? (System.currentTimeMillis() + timeout) : 0L;
 
         try {
-            translation = insecureGet(user, direction, sentence, translationContext, nbest, priority, expirationTimestamp);
+            translation = insecureGet(user, direction, sentence, translationContext, terminologyContext, nbest, priority, expirationTimestamp);
         } catch (DecoderException | HazelcastException e) {
             if (e instanceof TranslationTimeoutException)
                 throw e;
@@ -103,7 +107,7 @@ public class TranslationFacade {
                 // Ignore it
             }
 
-            translation = insecureGet(user, direction, sentence, translationContext, nbest, priority, expirationTimestamp);
+            translation = insecureGet(user, direction, sentence, translationContext, terminologyContext, nbest, priority, expirationTimestamp);
         }
 
         // Post-processing translation
@@ -117,7 +121,7 @@ public class TranslationFacade {
         return translation;
     }
 
-    private Translation insecureGet(UUID user, LanguageDirection direction, Sentence sentence, ContextVector context, int nbest, Priority priority, long expirationTimestamp) throws DecoderException {
+    private Translation insecureGet(UUID user, LanguageDirection direction, Sentence sentence, ContextVector context, ContextVector terminology, int nbest, Priority priority, long expirationTimestamp) throws DecoderException {
         if (expirationTimestamp > 0 && expirationTimestamp < System.currentTimeMillis())
             throw new TranslationTimeoutException();
 
@@ -127,7 +131,7 @@ public class TranslationFacade {
         try {
             ClusterNode node = ModernMT.getNode();
 
-            TranslationTask task = new TranslationTaskImpl(priority, user, direction, sentence, context, nbest, expirationTimestamp);
+            TranslationTask task = new TranslationTaskImpl(priority, user, direction, sentence, context, terminology, nbest, expirationTimestamp);
             Future<Translation> future = node.submit(task);
             return future.get();
         } catch (InterruptedException e) {
@@ -214,16 +218,18 @@ public class TranslationFacade {
         private final LanguageDirection direction;
         private final Sentence sentence;
         private final ContextVector context;
+        private final ContextVector terminology;
         private final int nbest;
 
         private final long expirationTimestamp;
 
-        TranslationTaskImpl(Priority priority, UUID user, LanguageDirection direction, Sentence sentence, ContextVector context, int nbest, long expirationTimestamp) {
+        TranslationTaskImpl(Priority priority, UUID user, LanguageDirection direction, Sentence sentence, ContextVector context, ContextVector terminology, int nbest, long expirationTimestamp) {
             this.priority = priority;
             this.user = user;
             this.direction = direction;
             this.sentence = sentence;
             this.context = context;
+            this.terminology = terminology;
             this.nbest = nbest;
             this.expirationTimestamp = expirationTimestamp;
         }
@@ -242,9 +248,9 @@ public class TranslationFacade {
 
             if (nbest > 0) {
                 DecoderWithNBest nBestDecoder = (DecoderWithNBest) decoder;
-                return nBestDecoder.translate(priority, user, direction, sentence, context, nbest, expirationTimestamp);
+                return nBestDecoder.translate(priority, user, direction, sentence, context, terminology, nbest, expirationTimestamp);
             } else {
-                return decoder.translate(priority, user, direction, sentence, context, expirationTimestamp);
+                return decoder.translate(priority, user, direction, sentence, context, terminology, expirationTimestamp);
             }
         }
 
