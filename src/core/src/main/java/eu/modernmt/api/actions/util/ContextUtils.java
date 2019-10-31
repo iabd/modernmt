@@ -46,8 +46,12 @@ public class ContextUtils {
     }
 
     public static ContextVector parseParameter(String name, String value) throws Parameters.ParameterParsingException {
+        return parseParameter(name, value, false);
+    }
+
+    public static ContextVector parseParameter(String name, String value, boolean terminology) throws Parameters.ParameterParsingException {
         try {
-            return ContextVector.fromString(value);
+            return ContextVector.fromString(value, terminology);
         } catch (IllegalArgumentException e) {
             throw new Parameters.ParameterParsingException(name, value);
         }

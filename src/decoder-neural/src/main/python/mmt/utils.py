@@ -51,12 +51,11 @@ def mask_std_streams():
 
 
 class TranslationRequest(object):
-    def __init__(self, source_lang, target_lang, batch, suggestions=None, terminologies=None, forced_translation=None):
+    def __init__(self, source_lang, target_lang, batch, suggestions=None, forced_translation=None):
         self.source_lang = source_lang
         self.target_lang = target_lang
         self.batch = batch
         self.suggestions = suggestions if suggestions is not None else []
-        self.terminologies = terminologies if terminologies is not None else []
         self.forced_translation = forced_translation
 
     @staticmethod
@@ -82,20 +81,11 @@ class TranslationRequest(object):
 
                 suggestions.append(Suggestion(sugg_sl, sugg_tl, sugg_seg, sugg_tra, sugg_scr))
 
-
-        terminologies = []
         if 'terminologies' in obj:
-            for terminologies_obj in obj['terminologies']:
-                term_sl = terminologies_obj['sl']
-                term_tl = terminologies_obj['tl']
-                term_seg = terminologies_obj['seg']
-                term_tra = terminologies_obj['tra']
-                term_scr = float(terminologies_obj['scr']) if 'scr' in terminologies_obj else 0
-
-                terminologies.append(Suggestion(term_sl, term_tl, term_seg, term_tra, term_scr))
+            raise ValueError('Terminology support is not implemented.')
 
         return TranslationRequest(source_lang, target_lang, batch,
-                                  suggestions=suggestions, terminologies=terminologies, forced_translation=forced_translation)
+                                  suggestions=suggestions, forced_translation=forced_translation)
 
 
 class TranslationResponse(object):
@@ -154,7 +144,6 @@ def serve_forever(stdin, stdout, decoder):
             else:
                 translations = decoder.translate(request.source_lang, request.target_lang, request.batch,
                                                  suggestions=request.suggestions,
-                                                 terminologies=request.terminologies,
                                                  forced_translation=request.forced_translation)
 
             response = TranslationResponse.to_json_string(translations)

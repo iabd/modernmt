@@ -33,13 +33,17 @@ public class DocumentBuilder {
     }
 
     public static Document newInstance(LanguageDirection language, long memory, String sentence, String translation, String hash) {
+        return newInstance(language, memory, sentence, translation, hash,false);
+    }
+
+    public static Document newInstance(LanguageDirection language, long memory, String sentence, String translation, String hash, boolean terminology) {
         Document document = new Document();
         document.add(new LongField(MEMORY_FIELD, memory, Field.Store.YES));
         document.add(new HashField(HASH_FIELD, hash, Field.Store.NO));
         document.add(new StringField(makeLanguageFieldName(language.source), language.source.toLanguageTag(), Field.Store.YES));
         document.add(new StringField(makeLanguageFieldName(language.target), language.target.toLanguageTag(), Field.Store.YES));
-        document.add(new TextField(makeContentFieldName(language), sentence, Field.Store.YES));
-        document.add(new TextField(makeContentFieldName(language.reversed()), translation, Field.Store.YES));
+        document.add(new TextField(makeContentFieldName(language,terminology), sentence, Field.Store.YES));
+        document.add(new TextField(makeContentFieldName(language.reversed(),terminology), translation, Field.Store.YES));
 
         return document;
     }
@@ -63,6 +67,7 @@ public class DocumentBuilder {
     private static final String HASH_FIELD = "hash";
     private static final String LANGUAGE_PREFIX_FIELD = "lang_";
     private static final String CONTENT_PREFIX_FIELD = "content_";
+    private static final String TERMINOLOGY_PREFIX_FIELD = "terminology_";
 
     // Getters
 
@@ -71,20 +76,28 @@ public class DocumentBuilder {
     }
 
     public static String getSourceLanguage(String fieldName) {
-        if (!fieldName.startsWith(CONTENT_PREFIX_FIELD))
-            throw new IllegalArgumentException("Unexpected field name: " + fieldName);
 
-        int lastUnderscore = fieldName.lastIndexOf('_');
-        return fieldName.substring(CONTENT_PREFIX_FIELD.length(), lastUnderscore);
+        if (fieldName.startsWith(CONTENT_PREFIX_FIELD)) {
+            int lastUnderscore = fieldName.lastIndexOf('_');
+            return fieldName.substring(CONTENT_PREFIX_FIELD.length(), lastUnderscore);
+        } else if (fieldName.startsWith(TERMINOLOGY_PREFIX_FIELD)) {
+            int lastUnderscore = fieldName.lastIndexOf('_');
+            return fieldName.substring(TERMINOLOGY_PREFIX_FIELD.length(), lastUnderscore);
+        } else {
+            throw new IllegalArgumentException("Unexpected field name: " + fieldName);
+        }
     }
 
     public static String getTargetLanguage(String fieldName) {
-        if (!fieldName.startsWith(CONTENT_PREFIX_FIELD))
+        if (fieldName.startsWith(CONTENT_PREFIX_FIELD)) {
+            int lastUnderscore = fieldName.lastIndexOf('_');
+            return fieldName.substring(lastUnderscore + 1);
+        } else if (fieldName.startsWith(TERMINOLOGY_PREFIX_FIELD)) {
+            int lastUnderscore = fieldName.lastIndexOf('_');
+            return fieldName.substring(lastUnderscore + 1);
+        } else {
             throw new IllegalArgumentException("Unexpected field name: " + fieldName);
-
-        int lastUnderscore = fieldName.lastIndexOf('_');
-
-        return fieldName.substring(lastUnderscore + 1);
+        }
     }
 
     // Parsing
@@ -117,10 +130,15 @@ public class DocumentBuilder {
             return asEntry(self, new LanguageDirection(target, source));
     }
 
+
     public static ScoreEntry asEntry(Document self, LanguageDirection direction) {
+     return asEntry(self, direction, false);
+    }
+
+    public static ScoreEntry asEntry(Document self, LanguageDirection direction, boolean terminology) {
         long memory = Long.parseLong(self.get(MEMORY_FIELD));
-        String[] sentence = self.get(makeContentFieldName(direction)).split(" ");
-        String[] translation = self.get(makeContentFieldName(direction.reversed())).split(" ");
+        String[] sentence = self.get(makeContentFieldName(direction, terminology)).split(" ");
+        String[] translation = self.get(makeContentFieldName(direction.reversed(), terminology)).split(" ");
 
         String _source = self.get(makeLanguageFieldName(direction.source));
         String _target = self.get(makeLanguageFieldName(direction.target));
@@ -188,8 +206,11 @@ public class DocumentBuilder {
         return LANGUAGE_PREFIX_FIELD + language.getLanguage();
     }
 
-    public static String makeContentFieldName(LanguageDirection direction) {
-        return CONTENT_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
+    public static String makeContentFieldName(LanguageDirection direction, boolean terminology) {
+        if (terminology)
+            return TERMINOLOGY_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
+        else
+            return CONTENT_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
     }
 
     // Utils

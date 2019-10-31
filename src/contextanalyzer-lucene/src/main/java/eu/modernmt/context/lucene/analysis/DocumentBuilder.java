@@ -33,7 +33,11 @@ public class DocumentBuilder {
         return newInstance(owner, memory, direction, corpus.getRawContentReader());
     }
 
-    public static Document newInstance(UUID owner, long memory, LanguageDirection direction, Reader contentReader) {
+    public static Document newInstance(UUID owner, long memory, LanguageDirection direction, Reader reader) {
+        return newInstance(owner, memory, direction, reader, false);
+    }
+
+    public static Document newInstance(UUID owner, long memory, LanguageDirection direction, Reader contentReader, boolean terminology) {
         Document document = new Document();
         document.add(new StringField(DOC_ID_FIELD, makeId(memory, direction), Field.Store.NO));
         document.add(new LongField(MEMORY_FIELD, memory, Field.Store.YES));
@@ -45,8 +49,7 @@ public class DocumentBuilder {
             document.add(new LongField(OWNER_MSB_FIELD, 0L, Field.Store.NO));
             document.add(new LongField(OWNER_LSB_FIELD, 0L, Field.Store.NO));
         }
-
-        document.add(new CorpusContentField(makeContentFieldName(direction), contentReader));
+        document.add(new CorpusContentField(makeContentFieldName(direction, terminology), contentReader));
 
         return document;
     }
@@ -56,6 +59,7 @@ public class DocumentBuilder {
     private static final String OWNER_MSB_FIELD = "owner_msb";
     private static final String OWNER_LSB_FIELD = "owner_lsb";
     private static final String CONTENT_PREFIX_FIELD = "content_";
+    private static final String TERMINOLOGY_PREFIX_FIELD = "terminology_";
 
     // Getters
 
@@ -76,10 +80,21 @@ public class DocumentBuilder {
     }
 
     public static String getLanguageForContentField(String field) {
-        if (!field.startsWith(CONTENT_PREFIX_FIELD))
-            return null;
+        return getLanguageForContentField(field, false);
+    }
 
-        return field.substring(CONTENT_PREFIX_FIELD.length(), field.lastIndexOf('_'));
+    public static String getLanguageForContentField(String field, boolean terminology) {
+        if (terminology) {
+            if (!field.startsWith(TERMINOLOGY_PREFIX_FIELD))
+                return null;
+
+            return field.substring(TERMINOLOGY_PREFIX_FIELD.length(), field.lastIndexOf('_'));
+        } else {
+            if (!field.startsWith(CONTENT_PREFIX_FIELD))
+                return null;
+
+            return field.substring(CONTENT_PREFIX_FIELD.length(), field.lastIndexOf('_'));
+        }
     }
 
     // Term constructors
@@ -118,7 +133,14 @@ public class DocumentBuilder {
     // Fields builders
 
     public static String makeContentFieldName(LanguageDirection direction) {
-        return CONTENT_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
+        return makeContentFieldName(direction, false);
+    }
+
+    public static String makeContentFieldName(LanguageDirection direction, boolean terminology) {
+        if (terminology)
+            return TERMINOLOGY_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
+        else
+            return CONTENT_PREFIX_FIELD + direction.source.getLanguage() + '_' + direction.target.getLanguage();
     }
 
     // Utils

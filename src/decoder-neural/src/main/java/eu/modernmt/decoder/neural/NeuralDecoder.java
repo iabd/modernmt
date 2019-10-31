@@ -120,28 +120,12 @@ public class NeuralDecoder extends Decoder implements DataListenerProvider {
 
         // Search for suggestions
         long lookupBegin = System.currentTimeMillis();
-        logger.debug("NeuralDecoder public Translation translate terminologyContextVector:" + terminologyContextVector);
-        if (memoryContextVector != null) {
-            logger.debug("NeuralDecoder public Translation translate memoryContextVector:" + memoryContextVector.toString());
-        }
         ScoreEntry[] suggestions = memoryLookup(user, direction, text, memoryContextVector);
-        logger.debug("NeuralDecoder public Translation translate suggestions:" + suggestions);
-        if (suggestions != null) {
-            logger.debug("NeuralDecoder public Translation translate suggestions:" + suggestions.length);
-        }
         long lookupTime = System.currentTimeMillis() - lookupBegin;
 
         // Search for terminologies
         long terminologyLookupBegin = System.currentTimeMillis();
-        logger.debug("NeuralDecoder public Translation translate terminologyContextVector:" + terminologyContextVector);
-        if (terminologyContextVector != null) {
-            logger.debug("NeuralDecoder public Translation translate terminologyContextVector:" + terminologyContextVector.toString());
-        }
         ScoreEntry[] terminologies = terminologyLookup(user, direction, text, terminologyContextVector);
-        logger.debug("NeuralDecoder public Translation translate terminologies:" + terminologies);
-        if (terminologies != null) {
-            logger.debug("NeuralDecoder public Translation translate terminologies:" + terminologies.length);
-        }
         long terminologyLookupTime = System.currentTimeMillis() - terminologyLookupBegin;
 
         // Scheduling translation
@@ -181,20 +165,20 @@ public class NeuralDecoder extends Decoder implements DataListenerProvider {
                         "   translation = " + targetText + "\n" +
                         "   alignment = " + translation.getWordAlignment() + "\n");
 
-                log.append("   suggestions = [\n");
                 if (suggestions != null) {
+                    log.append("   suggestions = [\n");
                     for (ScoreEntry entry : suggestions)
                         log.append("      ").append(entry).append('\n');
+                    log.append("   ]\n");
                 }
-                log.append("   ]\n");
 
-                log.append("   terminologies = [\n");
                 if (terminologies != null) {
+                    log.append("   terminologies = [\n");
                     for (ScoreEntry entry : terminologies)
                         log.append("      ").append(entry).append('\n');
-                }
-                log.append("   ]");
 
+                    log.append("   ]");
+                }
                 logger.debug(log);
             }
 
@@ -209,8 +193,7 @@ public class NeuralDecoder extends Decoder implements DataListenerProvider {
     }
 
     protected ScoreEntry[] memoryLookup(UUID user, LanguageDirection direction, Sentence text, ContextVector contextVector) throws DecoderException {
-        logger.info("NeuralDecoder lookup contextVector = " + contextVector);
-        ScoreEntry[] entries = null;
+         ScoreEntry[] entries = null;
 
         if (text.hasWords() && contextVector != null && !contextVector.isEmpty()) {
             try {
@@ -224,18 +207,12 @@ public class NeuralDecoder extends Decoder implements DataListenerProvider {
     }
 
     protected ScoreEntry[] terminologyLookup(UUID user, LanguageDirection direction, Sentence text, ContextVector terminologyVector) throws DecoderException {
-        logger.info("NeuralDecoder terminologyLookup terminologyVector = " + terminologyVector);
         ScoreEntry[] entries = null;
 
         if (text.hasWords() && terminologyVector != null && !terminologyVector.isEmpty()) {
-            try {
-                entries = memory.terminologySearch(user, direction, text, terminologyVector, suggestionsLimit);
-            } catch (IOException e) {
-                throw new DecoderException("Failed to retrieve suggestions from memory", e);
-            }
+            throw new DecoderException("Terminology is not implemented");
         }
-
-        return entries != null && entries.length > 0 ? entries : null;
+        return entries;
     }
 
     @Override

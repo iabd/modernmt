@@ -8,35 +8,10 @@ import java.util.*;
  */
 public class ContextVector implements Iterable<ContextVector.Entry>, Serializable {
 
-    public static class Pair<F,S> {
-
-        private final F first;
-        private final S second;
-
-        public Pair(F first, S second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        public F getFirst() { return first; }
-        public S getSecond() { return second; }
-
-        @Override
-        public int hashCode() { return first.hashCode() ^ second.hashCode(); }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof Pair)) return false;
-            Pair pairo = (Pair) o;
-            return this.first.equals(pairo.getFirst()) &&
-                    this.second.equals(pairo.getSecond());
-        }
-
-    }
 
     public static class Builder {
 
-        private final HashMap<Memory, Pair<Float,Boolean>> entries;
+        private final HashMap<Memory, Float> entries;
         private int limit = 0;
 
         public Builder(int initialCapacity) {
@@ -57,30 +32,26 @@ public class ContextVector implements Iterable<ContextVector.Entry>, Serializabl
         }
 
         public Builder add(long memory, float score, boolean terminology) {
-            this.add(new Memory(memory), score, terminology);
+            this.add(new Memory(memory, terminology), score);
             return this;
         }
 
         public Builder add(Memory memory, float score) {
-            return this.add(memory, score, false);
-        }
-
-        public Builder add(Memory memory, float score, boolean terminology) {
             if (score > 0.f)
-                entries.put(memory, new Pair<Float, Boolean>(score, terminology));
+                entries.put(memory, score);
             return this;
         }
 
 
         public Builder add(Entry e) {
-            this.add(e.memory, e.score, e.terminology);
+            this.add(e.memory, e.score);
             return this;
         }
 
         public ContextVector build() {
             List<Entry> list = new ArrayList<>(this.entries.size());
-            for (Map.Entry<Memory, Pair<Float,Boolean>> e : this.entries.entrySet())
-                list.add(new Entry(e.getKey(), e.getValue().getFirst(), e.getValue().getSecond()));
+            for (Map.Entry<Memory, Float> e : this.entries.entrySet())
+                list.add(new Entry(e.getKey(), e.getValue()));
 
             Collections.sort(list);
             Collections.reverse(list);
@@ -93,6 +64,10 @@ public class ContextVector implements Iterable<ContextVector.Entry>, Serializabl
     }
 
     public static ContextVector fromString(String string) throws IllegalArgumentException {
+        return fromString(string, false);
+    }
+
+    public static ContextVector fromString(String string, boolean terminology) throws IllegalArgumentException {
         String[] elements = string.split(",");
 
         ContextVector.Builder builder = new ContextVector.Builder(elements.length);
@@ -105,15 +80,9 @@ public class ContextVector implements Iterable<ContextVector.Entry>, Serializabl
 
             long memory;
             float score;
-            boolean terminology = false;
 
             try {
-                if (kv[0].charAt(0) == 't') {
-                    memory = Long.parseLong(kv[0].substring(1));
-                    terminology = true;
-                } else {
-                    memory = Long.parseLong(kv[0]);
-                }
+                memory = Long.parseLong(kv[0]);
                 score = Float.parseFloat(kv[1]);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException(string);
@@ -131,31 +100,15 @@ public class ContextVector implements Iterable<ContextVector.Entry>, Serializabl
         return builder.build();
     }
 
-    public ContextVector getTerminology(boolean terminology) {
-        ContextVector.Builder builder = new ContextVector.Builder(this.size());
-
-        for (Entry e: this.entries) {
-            if (e.terminology == terminology) {
-                builder.add(e);
-            }
-        }
-        return builder.build();
-    }
 
     public static class Entry implements Comparable<Entry>, Serializable {
 
         public final Memory memory;
         public final float score;
-        public final boolean terminology;
 
         private Entry(Memory memory, float score) {
-            this(memory, score, false);
-        }
-
-        private Entry(Memory memory, float score, boolean terminology) {
             this.memory = memory;
             this.score = score;
-            this.terminology = terminology;
         }
 
         @Override
@@ -221,8 +174,6 @@ public class ContextVector implements Iterable<ContextVector.Entry>, Serializabl
         for (int i = 0; i < entries.length; i++) {
             if (i > 0)
                 builder.append(',');
-            if (entries[i].terminology)
-                builder.append("t_");
             builder.append(entries[i].memory.getId());
             builder.append(':');
             builder.append(entries[i].score);

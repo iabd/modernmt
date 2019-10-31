@@ -11,19 +11,29 @@ public class Memory implements Serializable {
     private long id;
     private UUID owner;
     private String name;
+    private boolean terminology;
 
     public Memory(long id) {
-        this(id, null, null);
+        this(id, null, null, false);
     }
 
     public Memory(long id, String name) {
-        this(id, null, name);
+        this(id, null, name, false);
     }
 
-    public Memory(long id, UUID owner, String name) {
+    public Memory(long id, UUID owner, String name) { this(id, owner, name, false); }
+
+    public Memory(long id, boolean terminology) { this(id, null, null, terminology); }
+
+    public Memory(long id, String name, boolean terminology) {
+        this(id, null, name, terminology);
+    }
+
+    public Memory(long id, UUID owner, String name, boolean terminology) {
         this.id = id;
         this.owner = owner;
         this.name = name;
+        this.terminology = terminology;
     }
 
     public long getId() {
@@ -50,6 +60,14 @@ public class Memory implements Serializable {
         this.name = name;
     }
 
+    public boolean isTerminology() {
+        return terminology;
+    }
+
+    public void setTerminology(boolean terminology) {
+        this.terminology = terminology;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,6 +89,7 @@ public class Memory implements Serializable {
                 "id=" + id +
                 ", owner=" + owner +
                 ", name='" + name + '\'' +
+                ", terminology='" + terminology + '\'' +
                 '}';
     }
 

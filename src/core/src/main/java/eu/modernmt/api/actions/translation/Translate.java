@@ -100,16 +100,13 @@ public class Translate extends ObjectAction<TranslationResponse> {
             timeout = getLong("timeout", 0L);
 
             String terminologyWeights = getString("terminology_vector", false, null);
-
             if (terminologyWeights != null) {
-                terminology = ContextUtils.parseParameter("terminology_vector", terminologyWeights);
+                terminology = ContextUtils.parseParameter("terminology_vector", terminologyWeights, true);
             } else {
                 terminology = null;
             }
-            logger.debug("Params terminology:" + terminology);
 
             String  contextWeights = getString("context_vector", false, null);
-
             if (contextWeights != null) {
                 context = ContextUtils.parseParameter("context_vector", contextWeights);
                 contextString = null;
@@ -117,8 +114,6 @@ public class Translate extends ObjectAction<TranslationResponse> {
                 context = null;
                 contextString = getString("context", false, null);
             }
-            logger.debug("Params context:" + context);
-            logger.debug("Params contextString:" + contextString);
 
 
 

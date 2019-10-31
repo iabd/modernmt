@@ -67,12 +67,16 @@ public class DefaultQueryBuilder implements QueryBuilder {
     }
 
     protected static BooleanQuery makeTermsQuery(LanguageDirection direction, Sentence sentence, Analyzer analyzer) {
+        return makeTermsQuery(direction, sentence, analyzer, false);
+    }
+
+    protected static BooleanQuery makeTermsQuery(LanguageDirection direction, Sentence sentence, Analyzer analyzer, boolean terminology) {
         BooleanQuery termsQuery = new BooleanQuery();
-        loadTerms(DocumentBuilder.makeContentFieldName(direction), sentence, analyzer, termsQuery);
+        loadTerms(DocumentBuilder.makeContentFieldName(direction, terminology), sentence, analyzer, termsQuery);
         return termsQuery;
     }
 
-    private static void loadTerms(String fieldName, Sentence sentence, Analyzer analyzer, BooleanQuery output) {
+    protected static void loadTerms(String fieldName, Sentence sentence, Analyzer analyzer, BooleanQuery output) {
         String text = TokensOutputStream.serialize(sentence, false, true);
 
         try {

@@ -22,13 +22,12 @@ class Translation(object):
 
 
 class Suggestion(object):
-    def __init__(self, source_lang, target_lang, segment, translation, score, terminology=False):
+    def __init__(self, source_lang, target_lang, segment, translation, score):
         self.source_lang = source_lang
         self.target_lang = target_lang
         self.segment = segment
         self.translation = translation
         self.score = score
-        self.terminology = terminology
 
 
 class ModelConfig(object):
@@ -161,9 +160,8 @@ class MMTDecoder(object):
 
         self._logger.info('test_time = %.3f' % test_time)
 
-    def translate(self, source_lang, target_lang, batch, suggestions=None, terminologies=None,
+    def translate(self, source_lang, target_lang, batch, suggestions=None,
                   tuning_epochs=None, tuning_learning_rate=None,
-                  terminology_tuning_epochs=2, terminology_tuning_learning_rate=0.0005,
                   forced_translation=None):
         # (1) Reset model (if necessary)
         begin = time.time()
@@ -176,13 +174,6 @@ class MMTDecoder(object):
             self._tune(suggestions, epochs=tuning_epochs, learning_rate=tuning_learning_rate)
         tune_time = time.time() - begin
 
-
-        # (2) Tune engine if suggestions provided
-        begin = time.time()
-        if terminologies is not None and len(terminologies) > 0:
-            self._tune(terminologies, epochs=terminology_tuning_epochs, learning_rate=terminology_tuning_learning_rate)
-        terminology_tune_time = time.time() - begin
-
         # (3) Translate and compute word alignment
         begin = time.time()
         if forced_translation is not None:
@@ -192,8 +183,8 @@ class MMTDecoder(object):
 
         decode_time = time.time() - begin
 
-        self._logger.info('reset_time = %.3f, tune_time = %.3f, terminology_tune_time = % .3f, decode_time = %.3f'
-                          % (reset_time, tune_time, terminology_tune_time, decode_time))
+        self._logger.info('reset_time = %.3f, tune_time = %.3f, decode_time = %.3f'
+                          % (reset_time, tune_time, decode_time))
 
         return result
 
@@ -208,6 +199,7 @@ class MMTDecoder(object):
             self._nn_needs_reset = False
 
     def _tune(self, suggestions, epochs=None, learning_rate=None):
+
         # Set tuning parameters
         if epochs is None or learning_rate is None:
             _epochs, _learning_rate = self._tuner.estimate_tuning_parameters(suggestions)

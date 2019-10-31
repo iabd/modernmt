@@ -46,16 +46,13 @@ import static org.apache.lucene.analysis.Analyzer.PER_FIELD_REUSE_STRATEGY;
 public class LuceneTranslationMemory implements TranslationMemory {
 
     private final Logger logger = LogManager.getLogger(LuceneTranslationMemory.class);
-
     private final int minQuerySize;
     private final Directory indexDirectory;
     private final QueryBuilder queryBuilder;
-    private final QueryBuilder terminologyQueryBuilder;
     private final Rescorer rescorer;
     private final AnalyzerFactory analyzerFactory;
     private final Analyzer shortQueryAnalyzer;
     private final Analyzer longQueryAnalyzer;
-    private final Analyzer terminologyAnalyzer;
     private final IndexWriter indexWriter;
 
     private DirectoryReader _indexReader;
@@ -63,6 +60,10 @@ public class LuceneTranslationMemory implements TranslationMemory {
     private final Map<Short, Long> channels;
 
     private boolean closed = false;
+
+    public int getMinQuerySize() {
+        return minQuerySize;
+    }
 
     private static File forceMkdir(File directory) throws IOException {
         if (!directory.isDirectory())
@@ -93,12 +94,10 @@ public class LuceneTranslationMemory implements TranslationMemory {
     public LuceneTranslationMemory(Directory directory, QueryBuilder queryBuilder, Rescorer rescorer, AnalyzerFactory analyzerFactory, int minQuerySize) throws IOException {
         this.indexDirectory = directory;
         this.queryBuilder = queryBuilder;
-        this.terminologyQueryBuilder = queryBuilder;
         this.rescorer = rescorer;
         this.analyzerFactory = analyzerFactory;
         this.shortQueryAnalyzer = analyzerFactory.createShortQueryAnalyzer();
         this.longQueryAnalyzer = analyzerFactory.createLongQueryAnalyzer();
-        this.terminologyAnalyzer = analyzerFactory.createTerminologyAnalyzer();
         this.minQuerySize = minQuerySize;
 
         // Index writer setup
@@ -203,8 +202,7 @@ public class LuceneTranslationMemory implements TranslationMemory {
     }
 
     public ScoreEntry[] search(UUID user, LanguageDirection direction, Sentence source, ContextVector contextVector, Rescorer rescorer, int limit) throws IOException {
-        logger.info("LuceneTranslationMemory search contextVector = " + contextVector);
-        Analyzer analyzer = this.queryBuilder.isLongQuery(source.getWords().length) ? longQueryAnalyzer : shortQueryAnalyzer;
+         Analyzer analyzer = this.queryBuilder.isLongQuery(source.getWords().length) ? longQueryAnalyzer : shortQueryAnalyzer;
         Query query = this.queryBuilder.bestMatchingSuggestion(analyzer, user, direction, source, contextVector);
 
         IndexSearcher searcher = getIndexSearcher();
@@ -236,33 +234,7 @@ public class LuceneTranslationMemory implements TranslationMemory {
     }
 
     public ScoreEntry[] terminologySearch(UUID user, LanguageDirection direction, Sentence source, ContextVector contextVector, Rescorer rescorer, int limit) throws IOException {
-        logger.info("LuceneTranslationMemory terminologySearch contextVector = " + contextVector);
-        Analyzer analyzer = terminologyAnalyzer;
-        Query query = this.terminologyQueryBuilder.bestMatchingSuggestion(analyzer, user, direction, source, contextVector);
-
-        IndexSearcher searcher = getIndexSearcher();
-
-        //TODO: revise this search policy for terminology
-        int queryLimit = Math.max(this.minQuerySize, limit * 2);
-        ScoreDoc[] docs = searcher.search(query, queryLimit).scoreDocs;
-
-        ScoreEntry[] entries = new ScoreEntry[docs.length];
-        for (int i = 0; i < docs.length; i++) {
-            entries[i] = DocumentBuilder.asEntry(searcher.doc(docs[i].doc), direction);
-            entries[i].score = docs[i].score;
-            entries[i].terminology = true;
-        }
-
-        if (rescorer != null)
-            entries = rescorer.rescore(direction, source, entries, contextVector);
-
-        if (entries.length > limit) {
-            ScoreEntry[] temp = new ScoreEntry[limit];
-            System.arraycopy(entries, 0, temp, 0, limit);
-            entries = temp;
-        }
-
-        return entries;
+        throw new IOException("Terminology is not implemented");
     }
 
     public synchronized void optimize() throws IOException {

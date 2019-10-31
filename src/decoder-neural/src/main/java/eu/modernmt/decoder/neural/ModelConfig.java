@@ -36,10 +36,6 @@ public class ModelConfig {
         this.basePath = basePath;
     }
 
-    public File getBasePath() {
-        return basePath;
-    }
-
     public boolean isEchoServer() {
         try {
             SubnodeConfiguration settings = config.configurationAt("settings");

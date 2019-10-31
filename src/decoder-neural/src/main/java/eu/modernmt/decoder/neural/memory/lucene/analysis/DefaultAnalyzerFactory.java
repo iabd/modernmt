@@ -23,14 +23,10 @@ public class DefaultAnalyzerFactory implements AnalyzerFactory {
     }
 
     @Override
-    public Analyzer createLongQueryAnalyzer() {
-        return new ContentAnalyzer(SHINGLE_SIZE, false);
-    }
+    public Analyzer createLongQueryAnalyzer() { return new ContentAnalyzer(SHINGLE_SIZE, false); }
 
     @Override
-    public Analyzer createTerminologyAnalyzer() {
-        return new ContentAnalyzer(0, false);
-    }
+    public Analyzer createTerminologyAnalyzer() { return null; }
 
     @Override
     public Similarity createSimilarity() {

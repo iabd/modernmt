@@ -75,14 +75,19 @@ public class MemoryFacade {
         }
     }
 
+
     public Memory create(UUID owner, String name) throws PersistenceException {
+        return create(owner, name, false);
+    }
+
+    public Memory create(UUID owner, String name, boolean terminology) throws PersistenceException {
         Connection connection = null;
         Database db = ModernMT.getNode().getDatabase();
 
         try {
             connection = db.getConnection();
 
-            Memory memory = new Memory(0L, owner, name);
+            Memory memory = new Memory(0L, owner, name, terminology);
 
             MemoryDAO memoryDAO = db.getMemoryDAO(connection);
             memory = memoryDAO.store(memory);
