@@ -82,6 +82,11 @@ public class TagProjector {
                     //Remove first whitespace
                     tag.setLeftSpace(false);
                 }
+            } else {
+                Word word = (Word) token;
+                if (word.isTagRightSpaceRequired()) {
+                    word.setRightSpace(" ");
+                }
             }
             previousToken = token;
 

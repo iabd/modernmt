@@ -313,15 +313,52 @@ public class SentenceBuilder {
                 }
                 /*if the current transformation is not the last one in the list*/
             } else {
-                Transformation nextTransformation = transformations.get(i + 1);
-                hasRightSpace = transformation.end < nextTransformation.start;
+                if  (true) {
+                    Transformation nextTransformation = transformations.get(i + 1);
+                    hasRightSpace = transformation.end < nextTransformation.start;
 
-                if (hasRightSpace) {
-                    /*unescape the rightspace (see comment above to understand why)*/
-                    rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, nextTransformation.start - transformation.end));
+                    if (hasRightSpace) {
+                        /*unescape the rightspace (see comment above to understand why)*/
+                        rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, nextTransformation.start - transformation.end));
+                    }
+                }
 
+                if (false) {
+                    int j = i + 1;
+
+                    Transformation nextTransformation = transformations.get(j);
+                    int skip = nextTransformation.start - transformation.end;
+
+                    if (nextTransformation.tokenFactory == TokenFactory.WORD_FACTORY) {
+                        rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, skip));
+                    } else if (skip > 0) {
+                        rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, skip));
+                    } else {
+                        // skip all transformation which are TAG_FACTORY
+                        while (j < transformations.size()) {
+                            nextTransformation = transformations.get(j);
+                            if (nextTransformation.tokenFactory != TokenFactory.TAG_FACTORY) {
+                                break;
+                            }
+                            skip += nextTransformation.end - nextTransformation.start;
+                            j++;
+                        }
+                        if (j == transformations.size()) {
+                            //should never enter here, because this case has been already handled before
+                            assert (false);
+                        } else {
+                            nextTransformation = transformations.get(j);
+                            int firstPos = transformation.end + skip;
+
+                            if (firstPos < nextTransformation.start) {
+                                /*unescape the rightspace (see comment above to understand why)*/
+                                rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, firstPos, nextTransformation.start - firstPos));
+                            }
+                        }
+                    }
                 }
             }
+
 
             /*compute tagPosition*/
             /*the current tag position is the amount of words in the words list*/
@@ -354,6 +391,26 @@ public class SentenceBuilder {
                 tags.add((Tag) token);
             } else if (token instanceof Word) {
                 words.add((Word) token);
+            }
+        }
+
+        if (!tags.isEmpty()) {
+            int currentTagIdx = 0;
+
+            for (int wordPos = 0; wordPos < words.size(); wordPos++) {
+                while (currentTagIdx < tags.size()) {
+                    Tag currentTag = tags.get(currentTagIdx);
+                    if (currentTag.getPosition() > wordPos+1) {
+                        break;
+                    }
+
+                    if (currentTag.hasRightSpace()) {
+                        Word word = words.get(wordPos);
+                        word.setTagRightSpaceRequired(true);
+                    }
+
+                    currentTagIdx++;
+                }
             }
         }
 

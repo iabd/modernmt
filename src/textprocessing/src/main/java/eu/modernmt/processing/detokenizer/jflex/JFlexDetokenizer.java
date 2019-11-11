@@ -66,6 +66,14 @@ public class JFlexDetokenizer extends TextProcessor<Translation, Translation> {
         text.apply(translation, (word, hasSpace) -> {
             if (word.hasRightSpace())
                 word.setRightSpace(hasSpace ? " " : null);
+
+/*
+            if (word.hasRightSpace()) {
+                word.setRightSpace(hasSpace ? " " : null);
+                word.setRightSpaceRequired(hasSpace ? true : false);
+            }
+*/
+
         });
 
         return translation;

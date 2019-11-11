@@ -46,15 +46,17 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
 
             if (!alignment.contains(probe))
                 continue;
-
             Word sourceWord = sourceWords[point.source];
             Word targetWord = targetWords[point.target];
 
             boolean project = (sourceWord.isRightSpaceRequired() && targetWord.hasRightSpace()) ||
                     (sourceWord.hasRightSpace() && !sourceWord.isRightSpaceRequired());
 
-            if (project)
+
+            if (project) {
                 targetWord.setRightSpace(sourceWord.getRightSpace());
+                targetWord.setTagRightSpaceRequired(sourceWord.isTagRightSpaceRequired());
+            }
         }
 
         return translation;
