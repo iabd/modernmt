@@ -266,26 +266,38 @@ public class SentenceBuilder {
 
             /*there is a space between previous transformation text and current one*/
             boolean hasLeftSpace;
-            /*there is a space between previous transformation text and next one*/
+            /*there is a space between current transformation text and next one*/
             boolean hasRightSpace;
+            /*string with the space between current transformation text and previous one*/
+            String leftSpace = null;
             /*string with the space between current transformation text and next one*/
             String rightSpace = null;
             /*amount of WORDS that occur before the current transformation*/
             int tagPosition;
 
-            /*compute hasLeftSpace*/
+            /*compute leftSpace*/
             /*if the current transformation is the first one in the list,
-             * it has a leftspace if it doesn't start at position 0 */
+             * it has a leftSpace if it doesn't start at position 0 */
             if (i == 0) {
-                hasLeftSpace = (transformation.start != 0);
+                hasLeftSpace = (transformation.start > 0);
                 /*else, if the current transformation is not the first one in the list
-                 * it has a leftspace if it doesn't start at the end of its predecessor*/
+                 * it has a leftSpace if it doesn't start at the end of its predecessor*/
+
+                if (hasLeftSpace) {
+                    /*unescape the leftSpace (see comment above to understand why)*/
+                    leftSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, transformation.start));
+                }
             } else {
                 Transformation previousTransformation = transformations.get(i - 1);
-                hasLeftSpace = (transformation.start - previousTransformation.end != 0);
+                hasLeftSpace = (transformation.start - previousTransformation.end > 0);
+
+                if (hasLeftSpace) {
+                    /*unescape the leftSpace (see comment above to understand why)*/
+                    leftSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, previousTransformation.end, transformation.start - previousTransformation.end));
+                }
             }
 
-            /*compute hasRightSpace and rightSpace*/
+            /*compute rightSpace*/
             /*if the current transformation is the last one in the list*/
             if (i == transformations.size() - 1) {
                 hasRightSpace = transformation.end < originalChars.length;
@@ -299,16 +311,16 @@ public class SentenceBuilder {
                     - whitespaces
                     - etc
                 XML tags lead to the creation of new Tag Transformations that are now in the
-                tokenizable transformations list, so an XML tag can't be in a rightspace.
+                tokenizable transformations list, so an XML tag can't be in a rightSpace.
 
                 Xml escaping sequences, rare chars and whitespaces on the contrary
                 generate Replacement Transformations, that are not tokenizable
                 so are not in the tokenizable list.
-                While we are ok with having rarechars and whitespaces in the rightspace,
+                While we are ok with having rare chars and whitespaces in the rightSpace,
                 we still don't want XML escaping sequences.
-                Therefore we unescape the rightspace.*/
+                Therefore we unescape the rightSpace.*/
                 if (hasRightSpace) {
-                    //rightSpace = XMLCharacterEntity.unescapeAll(originalChars, transformation.end, originalChars.length - transformation.end);
+                    /*unescape the rightSpace (see comment above to understand why)*/
                     rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, originalChars.length - transformation.end));
                 }
                 /*if the current transformation is not the last one in the list*/
@@ -317,7 +329,7 @@ public class SentenceBuilder {
                 hasRightSpace = transformation.end < nextTransformation.start;
 
                 if (hasRightSpace) {
-                    /*unescape the rightspace (see comment above to understand why)*/
+                    /*unescape the rightSpace (see comment above to understand why)*/
                     rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, nextTransformation.start - transformation.end));
 
                 }
@@ -331,9 +343,9 @@ public class SentenceBuilder {
              However
                 - If the token is a Tag, it surely does not require XML escaping
                 - If it is a word, the original text may still contain
-                       xml tags, xml escape sequences, rarechars and whitespaces
+                       xml tags, xml escape sequences, rare chars and whitespaces
                        However it is impossible to have XML tags (they would lead to a Tag Token)
-                       We are ok with whitespaces and rarechars
+                       We are ok with whitespaces and rare chars
                        We still need xml escaping
                   Therefore, if we are creating a Word Token, unescape the originalText.
                  */
@@ -347,7 +359,7 @@ public class SentenceBuilder {
             }
 
             /*generate the Token*/
-            Token token = tokenFactory.build(originalText, placeholderText, hasLeftSpace, rightSpace, tagPosition);
+            Token token = tokenFactory.build(originalText, placeholderText, leftSpace, rightSpace, tagPosition);
 
             /*put the token in the separate list corresponding to its class*/
             if (token instanceof Tag) {
