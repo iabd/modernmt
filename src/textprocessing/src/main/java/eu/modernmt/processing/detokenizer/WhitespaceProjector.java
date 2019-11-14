@@ -40,6 +40,7 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
         HashSet<AlignmentPoint> alignment = AlignmentPoint.parse(translation.getWordAlignment());
 
         AlignmentPoint probe = new AlignmentPoint();
+        //consider consecutive word pairs translated in monotonic way
         for (AlignmentPoint point : alignment) {
             probe.source = point.source + 1;
             probe.target = point.target + 1;
@@ -50,11 +51,22 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
             Word sourceWord = sourceWords[point.source];
             Word targetWord = targetWords[point.target];
 
-            boolean project = (sourceWord.isRightSpaceRequired() && targetWord.hasRightSpace()) ||
-                    (sourceWord.hasRightSpace() && !sourceWord.isRightSpaceRequired());
-
-            if (project)
+            //project the space between under given conditiona
+            if ((sourceWord.isRightSpaceRequired() && targetWord.hasRightSpace()) ||
+                    (!sourceWord.isRightSpaceRequired() && sourceWord.hasRightSpace()))
                 targetWord.setRightSpace(sourceWord.getRightSpace());
+
+            //TODO: do we actually do this separately for right space of the left word
+            //      and for the left space of the right word?
+            //      It is possible use the same conditions for both the left and the right words
+
+            sourceWord = sourceWords[probe.source];
+            targetWord = targetWords[probe.target];
+
+            //project the space between under given conditiona
+            if ((sourceWord.isLeftSpaceRequired() && targetWord.hasLeftSpace()) ||
+                    (!sourceWord.isLeftSpaceRequired() && sourceWord.hasLeftSpace()))
+                targetWord.setLeftSpace(sourceWord.getLeftSpace());
         }
 
         return translation;
@@ -70,7 +82,9 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
             annotator.annotate(text, type);
         }
 
-        text.apply(sentence, Word::setRightSpaceRequired);
+        //use Word::setRightSpaceRequired for the left word, and use Word::setLeftSpaceRequired for the right word
+        text.apply(sentence, Word::setRightSpaceRequired, Word::setLeftSpaceRequired);
+
         return sentence;
     }
 

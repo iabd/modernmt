@@ -69,19 +69,28 @@ public class SpacesAnnotatedString {
         return new CharArrayReader(text);
     }
 
-    public <S extends Sentence> S apply(S sentence, ApplyFunction function) {
+    public <S extends Sentence> S apply(S sentence, ApplyFunction leftFunction, ApplyFunction rightFunction) {
         int index = 1; // Skip first whitespace
 
         Word[] words = sentence.getWords();
 
-        for (int i = 0; i < words.length; i++) {
-            Word word = words[i];
-            String placeholder = word.getPlaceholder();
+        if (words.length == 0)
+            return sentence;
+
+        for (int i = 1; i < words.length; i++) {
+            Word leftWord = words[i-1];
+            Word rightWord = words[i];
+            String placeholder = leftWord.getPlaceholder();
             index += placeholder.length();
 
-            function.apply(word, !(i == words.length - 1 || bits.get(index)));
+            leftFunction.apply(leftWord, !(i == words.length - 1 || bits.get(index)));
+            rightFunction.apply(rightWord, !(i == words.length - 1 || bits.get(index)));
             index++;
         }
+        Word word = words[words.length-1];
+        String  placeholder = word.getPlaceholder();
+        index += placeholder.length();
+        rightFunction.apply(word, !(words.length == 1 || bits.get(index)));
 
         return sentence;
     }
