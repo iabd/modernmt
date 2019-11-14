@@ -7,31 +7,41 @@ import eu.modernmt.xml.XMLUtils;
  */
 public class Word extends Token {
 
+    protected boolean leftSpaceRequired;
     protected boolean rightSpaceRequired;
     private String xmlEscapedString = null;
 
     public Word(String placeholder) {
         super(placeholder);
+        this.leftSpaceRequired = super.leftSpace != null;
         this.rightSpaceRequired = super.rightSpace != null;
     }
 
-    public Word(String placeholder, String rightSpace) {
-        super(placeholder, rightSpace);
+    public Word(String placeholder, String leftSpace, String rightSpace) {
+        super(placeholder, leftSpace, rightSpace);
+        this.leftSpaceRequired = super.leftSpace != null;
         this.rightSpaceRequired = super.rightSpace != null;
     }
 
-    public Word(String text, String placeholder, String rightSpace) {
-        super(text, placeholder, rightSpace);
+    public Word(String text, String placeholder, String leftSpace, String rightSpace) {
+        super(text, placeholder, leftSpace, rightSpace);
+        this.leftSpaceRequired = super.leftSpace != null;
         this.rightSpaceRequired = super.rightSpace != null;
     }
 
-    public Word(String text, String placeholder, String rightSpace, boolean rightSpaceRequired) {
-        super(text, placeholder, rightSpace);
+    public Word(String text, String placeholder, String leftSpace, String rightSpace, boolean leftSpaceRequired, boolean rightSpaceRequired) {
+        super(text, placeholder, leftSpace, rightSpace);
+        this.leftSpaceRequired = leftSpaceRequired;
         this.rightSpaceRequired = rightSpaceRequired;
     }
 
-    public boolean isRightSpaceRequired() {
-        return rightSpaceRequired;
+
+    public boolean isLeftSpaceRequired() { return leftSpaceRequired; }
+
+    public boolean isRightSpaceRequired() { return rightSpaceRequired; }
+
+    public void setLeftSpaceRequired(boolean leftSpaceRequired) {
+        this.leftSpaceRequired = leftSpaceRequired;
     }
 
     public void setRightSpaceRequired(boolean rightSpaceRequired) {

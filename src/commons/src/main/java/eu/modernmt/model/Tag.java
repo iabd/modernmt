@@ -21,10 +21,10 @@ public class Tag extends Token implements Comparable<Tag> {
     }
 
     public static Tag fromText(String text) {
-        return fromText(text, false, null, -1);
+        return fromText(text, null, null, -1);
     }
 
-    public static Tag fromText(String text, boolean leftSpace, String rightSpace, int position) {
+    public static Tag fromText(String text, String leftSpace, String rightSpace, int position) {
         if ("<!--".equals(text)) {
             return new Tag("--", text, leftSpace, rightSpace, position, Type.OPENING_TAG, false);
         } else if ("-->".equals(text)) {
@@ -68,7 +68,6 @@ public class Tag extends Token implements Comparable<Tag> {
 
     protected Type type; /* tag type */
     protected final String name; /* tag name */
-    protected boolean leftSpace; /* true if there is at least one space on the left of the tag*/
     /* position of the word after which the tag is placed; indexes of words start from 0
     e.g. a tag at the beginning of the sentence has position=0
     e.g. a tag at the end of the sentence (of Length words) has position=Length
@@ -76,17 +75,12 @@ public class Tag extends Token implements Comparable<Tag> {
     protected int position;
     protected boolean dtd;
 
-    protected Tag(String name, String text, boolean leftSpace, String rightSpace, int position, Type type, boolean dtd) {
-        super(text, text, rightSpace);
-        this.leftSpace = leftSpace;
+    protected Tag(String name, String text, String leftSpace, String rightSpace, int position, Type type, boolean dtd) {
+        super(text, text, leftSpace, rightSpace);
         this.position = position;
         this.type = type;
         this.name = name;
         this.dtd = dtd;
-    }
-
-    public boolean hasLeftSpace() {
-        return leftSpace;
     }
 
     public int getPosition() {
@@ -107,10 +101,6 @@ public class Tag extends Token implements Comparable<Tag> {
 
     public String getName() {
         return name;
-    }
-
-    public void setLeftSpace(boolean leftSpace) {
-        this.leftSpace = leftSpace;
     }
 
     public boolean isEmptyTag() {
@@ -161,7 +151,6 @@ public class Tag extends Token implements Comparable<Tag> {
 
         Tag tag = (Tag) o;
 
-        if (leftSpace != tag.leftSpace) return false;
         if (position != tag.position) return false;
         if (dtd != tag.dtd) return false;
         if (type != tag.type) return false;
@@ -174,7 +163,6 @@ public class Tag extends Token implements Comparable<Tag> {
         int result = super.hashCode();
         result = 31 * result + type.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + (leftSpace ? 1 : 0);
         result = 31 * result + position;
         result = 31 * result + (dtd ? 1 : 0);
         return result;
