@@ -42,15 +42,14 @@ public class TagProjector {
                 Tag[] copy = Arrays.copyOf(sourceTags.getTags(), sourceTags.size());
                 translation.setTags(copy);
             }
+        } else {
+            simpleSpaceAnalysis(translation);
         }
 
         return translation;
     }
 
     public static void simpleSpaceAnalysis(Translation translation) {
-        if (!translation.hasTags())
-            return;
-
         //Add whitespace between the last word and the next tag if the latter has left space
         Tag[] tags = translation.getTags();
         Word[] words = translation.getWords();
@@ -67,10 +66,16 @@ public class TagProjector {
             }
         }
 
+        //TODO: revise this part according to the new meaning of rightSpace and leftSpace
         //Remove whitespace between word and the next tag, if the first has no right space.
         //Left trim first token if it is a tag
         Token previousToken = null;
         for (Token token : translation) {
+
+            //Remove first whitespace
+            if (previousToken == null) {
+                token.setLeftSpace(null);
+            }
             if (token instanceof Tag) {
                 Tag tag = (Tag) token;
                 if (previousToken != null && previousToken.hasRightSpace() && !tag.hasLeftSpace()) {
@@ -78,9 +83,6 @@ public class TagProjector {
                         tag.setRightSpace(previousToken.getRightSpace());
                     }
                     previousToken.setRightSpace(null);
-                } else if (previousToken == null) {
-                    //Remove first whitespace
-                    tag.setLeftSpace(false);
                 }
             }
             previousToken = token;
