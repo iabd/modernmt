@@ -86,28 +86,77 @@ public class Sentence implements Serializable, Iterable<Token> {
         boolean foundFirstWord = false;
         boolean printSpace = false;
 
+        String space = null;
+
         for (Token token : this) {
-            if (token instanceof Tag) {
-                printSpace = true;
+            String currentLeftSpace = token.getLeftSpace();
+            String currentRightSpace = token.getRightSpace();
+
+            if (space != null) {
+                if (currentLeftSpace != null && !space.equals(currentLeftSpace)) {
+                    space = currentLeftSpace;
+                }
             } else {
-                if (printSpace && foundFirstWord)
-                    builder.append(' ');
+                space = currentLeftSpace;
+            }
 
-                foundFirstWord = true;
+            if (token instanceof Tag) {
 
+                if ((space != null && currentRightSpace != null && !space.equals(currentRightSpace)) || space == null) {
+                    space = currentRightSpace;
+                }
+
+                if (foundFirstWord && space == null) {
+                    printSpace = true;
+                }
+
+            } else {
+                if (space != null) {
+                    if (foundFirstWord)
+                        builder.append(space);
+                } else {
+                    if (printSpace && foundFirstWord)
+                        builder.append(" ");
+                }
                 String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
                 builder.append(text);
-                printSpace = token.hasRightSpace();
+
+                space = currentRightSpace;
+                printSpace = false;
+                foundFirstWord = true;
             }
         }
 
         return builder.toString();
     }
-
     private String toXMLString(boolean printPlaceholders) {
         StringBuilder builder = new StringBuilder();
 
+        Token previousToken = null;
+        String space = null;
+        String currentLeftSpace;
+        String currentRightSpace;
+
         for (Token token : this) {
+            currentLeftSpace = token.getLeftSpace();
+            currentRightSpace = token.getRightSpace();
+
+            if (space != null) {
+                if (currentLeftSpace != null && !space.equals(currentLeftSpace)) {
+                    space = currentLeftSpace;
+                }
+            } else {
+                if (previousToken instanceof Tag && ((Tag) previousToken).getType() != Tag.Type.CLOSING_TAG) {
+                    space = previousToken.getRightSpace();
+                } else {
+                    space = currentLeftSpace;
+                }
+            }
+
+            if (space != null) {
+                builder.append(space);
+            }
+
             if (token instanceof Tag) {
                 builder.append(token.getText());
             } else {
@@ -115,8 +164,8 @@ public class Sentence implements Serializable, Iterable<Token> {
                 builder.append(XMLUtils.escapeText(text));
             }
 
-            if (token.hasRightSpace())
-                builder.append(token.getRightSpace());
+            space = currentRightSpace;
+            previousToken = token;
         }
 
         return builder.toString();
