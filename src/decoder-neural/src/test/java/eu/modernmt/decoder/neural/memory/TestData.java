@@ -52,7 +52,7 @@ public class TestData {
         Word[] words = new Word[tokens.length];
 
         for (int i = 0; i < words.length; i++)
-            words[i] = new Word(tokens[i], " ");
+            words[i] = new Word(tokens[i], (i == 0) ? null : " ", (i == words.length - 1) ? null : " ");
 
         return new Sentence(words);
     }
