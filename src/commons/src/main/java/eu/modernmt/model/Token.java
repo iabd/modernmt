@@ -8,6 +8,9 @@ import java.util.Objects;
  */
 public class Token implements Serializable {
 
+    //Artificial space to represent the presence of a tag before/after the token
+    public final static String VIRTUAL_SPACE = "VIRTUAL_SPACE";
+
     // the original form of this token
     protected String text;
     // the text version that was identified as a token, it may be partly processed
@@ -107,8 +110,8 @@ public class Token implements Serializable {
 
         if (!Objects.equals(text, token.text)) return false;
         if (!placeholder.equals(token.placeholder)) return false;
-        if (!Objects.equals(leftSpace, token.leftSpace)) return false;
-        return Objects.equals(rightSpace, token.rightSpace);
+        if (!Objects.equals(leftSpace, token.leftSpace) && !Objects.equals(Token.VIRTUAL_SPACE, token.leftSpace) && !Objects.equals(token.leftSpace, Token.VIRTUAL_SPACE)) return false;
+        return Objects.equals(rightSpace, token.rightSpace) || Objects.equals(Token.VIRTUAL_SPACE, token.rightSpace) || Objects.equals(token.rightSpace, Token.VIRTUAL_SPACE);
 
     }
 
