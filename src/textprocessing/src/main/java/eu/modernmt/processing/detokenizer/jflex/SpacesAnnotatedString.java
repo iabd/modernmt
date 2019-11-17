@@ -77,20 +77,19 @@ public class SpacesAnnotatedString {
         if (words.length == 0)
             return sentence;
 
+        rightFunction.apply(words[0], false);
         for (int i = 1; i < words.length; i++) {
             Word leftWord = words[i-1];
             Word rightWord = words[i];
             String placeholder = leftWord.getPlaceholder();
             index += placeholder.length();
 
-            leftFunction.apply(leftWord, !(i == words.length - 1 || bits.get(index)));
-            rightFunction.apply(rightWord, !(i == words.length - 1 || bits.get(index)));
+            System.out.println("leftWord:" + leftWord + " rightWord:" + rightWord + " index:" + index  + " bits.get(index):" + bits.get(index));
+            leftFunction.apply(leftWord, !bits.get(index));
+            rightFunction.apply(rightWord, !bits.get(index));
             index++;
         }
-        Word word = words[words.length-1];
-        String  placeholder = word.getPlaceholder();
-        index += placeholder.length();
-        rightFunction.apply(word, !(words.length == 1 || bits.get(index)));
+        leftFunction.apply(words[words.length-1], false);
 
         return sentence;
     }
