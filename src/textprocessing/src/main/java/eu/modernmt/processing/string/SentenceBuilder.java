@@ -165,6 +165,7 @@ public class SentenceBuilder {
             if (!annotations.isEmpty())
                 sentence.addAnnotations(annotations);
 
+            System.out.println(sentence.toString());
             return sentence;
         } catch (RuntimeException e) {
             throw new RuntimeException("Failed to build sentence for string: " + originalString, e);
@@ -294,6 +295,11 @@ public class SentenceBuilder {
                 if (hasLeftSpace) {
                     /*unescape the leftSpace (see comment above to understand why)*/
                     leftSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, previousTransformation.end, transformation.start - previousTransformation.end));
+                } else{
+                    if ((transformation.tokenFactory == TokenFactory.WORD_FACTORY && previousTransformation.tokenFactory == TokenFactory.TAG_FACTORY) ||
+                            (transformation.tokenFactory == TokenFactory.TAG_FACTORY && previousTransformation.tokenFactory == TokenFactory.WORD_FACTORY)) {
+                        leftSpace = Token.VIRTUAL_SPACE;
+                    }
                 }
             }
 
@@ -331,7 +337,11 @@ public class SentenceBuilder {
                 if (hasRightSpace) {
                     /*unescape the rightSpace (see comment above to understand why)*/
                     rightSpace = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.end, nextTransformation.start - transformation.end));
-
+                } else {
+                    if ((transformation.tokenFactory == TokenFactory.WORD_FACTORY && nextTransformation.tokenFactory == TokenFactory.TAG_FACTORY) ||
+                            (transformation.tokenFactory == TokenFactory.TAG_FACTORY && nextTransformation.tokenFactory == TokenFactory.WORD_FACTORY)) {
+                        rightSpace = Token.VIRTUAL_SPACE;
+                    }
                 }
             }
 
@@ -355,7 +365,6 @@ public class SentenceBuilder {
             } else {
                 //originalText = XMLCharacterEntity.unescapeAll(originalChars, transformation.start, transformation.end - transformation.start);
                 originalText = XMLCharacterEntity.unescapeAll(new String(originalChars, transformation.start, transformation.end - transformation.start));
-
             }
 
             /*generate the Token*/
