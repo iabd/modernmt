@@ -89,6 +89,7 @@ public class SpacesAnnotatedString {
             rightFunction.apply(rightWord, !bits.get(index));
             index++;
         }
+        
         leftFunction.apply(words[words.length-1], false);
 
         return sentence;
