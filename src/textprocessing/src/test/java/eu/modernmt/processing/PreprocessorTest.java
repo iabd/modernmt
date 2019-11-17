@@ -34,7 +34,7 @@ public class PreprocessorTest {
         String text = "Hello world!";
         Sentence sentence = process(text);
 
-        assertEquals(text, sentence.toString(true, false));
+        assertEquals(text, sentence.toString());
         assertEquals("Hello world!", sentence.toString(false, false));
         assertFalse(sentence.hasTags());
 
@@ -50,7 +50,7 @@ public class PreprocessorTest {
         String text = "<a> Hello world!";
         Sentence sentence = process(text);
 
-        assertEquals(text, sentence.toString(true, false));
+        assertEquals(text, sentence.toString());
         assertEquals("Hello world!", sentence.toString(false, false));
         assertTrue(sentence.hasTags());
 
@@ -69,7 +69,7 @@ public class PreprocessorTest {
         String text = "Hello<a> world!";
         Sentence sentence = process(text);
 
-        assertEquals(text, sentence.toString(true, false));
+        assertEquals(text, sentence.toString());
         assertEquals("Hello world!", sentence.toString(false, false));
         assertTrue(sentence.hasTags());
 
@@ -88,7 +88,7 @@ public class PreprocessorTest {
         String text = "Hello<a> <b>world!";
         Sentence sentence = process(text);
 
-        assertEquals(text, sentence.toString(true, false));
+        assertEquals(text, sentence.toString());
         assertEquals("Hello world!", sentence.toString(false, false));
         assertTrue(sentence.hasTags());
 
