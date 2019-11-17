@@ -84,12 +84,11 @@ public class SpacesAnnotatedString {
             String placeholder = leftWord.getPlaceholder();
             index += placeholder.length();
 
-            System.out.println("leftWord:" + leftWord + " rightWord:" + rightWord + " index:" + index  + " bits.get(index):" + bits.get(index));
             leftFunction.apply(leftWord, !bits.get(index));
             rightFunction.apply(rightWord, !bits.get(index));
             index++;
         }
-        
+
         leftFunction.apply(words[words.length-1], false);
 
         return sentence;

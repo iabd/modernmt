@@ -165,7 +165,6 @@ public class SentenceBuilder {
             if (!annotations.isEmpty())
                 sentence.addAnnotations(annotations);
 
-            System.out.println(sentence.toString());
             return sentence;
         } catch (RuntimeException e) {
             throw new RuntimeException("Failed to build sentence for string: " + originalString, e);
