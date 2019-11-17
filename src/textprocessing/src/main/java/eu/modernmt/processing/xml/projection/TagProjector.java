@@ -10,10 +10,9 @@ public class TagProjector {
     public Translation project(Translation translation) {
         Sentence source = translation.getSource();
 
-        if (source.hasTags()) {
-            TagCollection sourceTags = new TagCollection(source.getTags());
-
-            if (source.hasWords()) {
+        if (source.hasWords()) {
+            if (source.hasTags()) {
+                TagCollection sourceTags = new TagCollection(source.getTags());
                 if (translation.hasAlignment()) {
                     sourceTags.fixXmlCompliance();
 
@@ -38,57 +37,37 @@ public class TagProjector {
                     translation.setTags(translationTags.getTags());
                     simpleSpaceAnalysis(translation);
                 }
-            } else { //there are no source words; just copy the source tags in the target tags
+            }
+            simpleSpaceAnalysis(translation);
+        } else {
+            if (source.hasTags()) {
+                TagCollection sourceTags = new TagCollection(source.getTags());
                 Tag[] copy = Arrays.copyOf(sourceTags.getTags(), sourceTags.size());
                 translation.setTags(copy);
             }
-        } else {
-            simpleSpaceAnalysis(translation);
         }
 
         return translation;
     }
 
     public static void simpleSpaceAnalysis(Translation translation) {
-        //Add whitespace between the last word and the next tag if the latter has left space
-        Tag[] tags = translation.getTags();
-        Word[] words = translation.getWords();
-        int firstTagAfterLastWord = tags.length - 1;
-        boolean found = false;
-        while (firstTagAfterLastWord >= 0 && tags[firstTagAfterLastWord].getPosition() == words.length) {
-            firstTagAfterLastWord--;
-            found = true;
-        }
-        if (found) {
-            firstTagAfterLastWord++;
-            if (tags[firstTagAfterLastWord].hasLeftSpace() && !words[words.length - 1].hasRightSpace()) {
-                words[words.length - 1].setRightSpace(" ");
-            }
-        }
-
-        //TODO: revise this part according to the new meaning of rightSpace and leftSpace
-        //Remove whitespace between word and the next tag, if the first has no right space.
-        //Left trim first token if it is a tag
+        //make left and right spaces identical and coherent with the priority policy established
         Token previousToken = null;
         for (Token token : translation) {
-
-            //Remove first whitespace
+            //Remove whitespace on the left of the first token
             if (previousToken == null) {
                 token.setLeftSpace(null);
-            }
-            if (token instanceof Tag) {
-                Tag tag = (Tag) token;
-                if (previousToken != null && previousToken.hasRightSpace() && !tag.hasLeftSpace()) {
-                    if (!tag.hasRightSpace()) {
-                        tag.setRightSpace(previousToken.getRightSpace());
-                    }
-                    previousToken.setRightSpace(null);
-                }
+            } else {
+                String leftSpace = previousToken.getRightSpace();
+                String rightSpace = token.getLeftSpace();
+                String space = Sentence.getSpace(leftSpace, rightSpace, previousToken instanceof Word, token instanceof Word);
+
+                previousToken.setRightSpace(space);
+                token.setLeftSpace(space);
             }
             previousToken = token;
-
         }
-        //Remove the last whitespace
+        //Remove whitespace on the right side of the last token
         if (previousToken != null) {
             previousToken.setRightSpace(null);
         }
