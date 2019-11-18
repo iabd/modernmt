@@ -15,6 +15,7 @@ public class Sentence implements Serializable, Iterable<Token> {
     protected final Word[] words;
     protected Tag[] tags;
     protected Set<String> annotations;
+    private boolean spaceConsistent = false;
 
     public Sentence(Word[] words) {
         this(words, null);
@@ -69,6 +70,15 @@ public class Sentence implements Serializable, Iterable<Token> {
 
     public boolean hasAnnotation(String annotation) {
         return annotations != null && annotations.contains(annotation);
+    }
+
+
+    public boolean isSpaceConsistent() {
+        return spaceConsistent;
+    }
+
+    public void setSpaceConsistent(boolean spaceConsistent) {
+        this.spaceConsistent = spaceConsistent;
     }
 
     @Override
@@ -260,27 +270,40 @@ left    real1   real1   real1   real1+real2
     private String toXMLString(boolean printPlaceholders) {
         StringBuilder builder = new StringBuilder();
 
-        Token previousToken = null;
-        for (Token token : this) {
-            String leftSpace = previousToken == null ? null :previousToken.getRightSpace();
-            String rightSpace = token.getLeftSpace();
-            String space = getSpace(leftSpace, rightSpace, previousToken instanceof  Word, token instanceof Word);
+        if (this.isSpaceConsistent()) {
+            for (Token token : this) {
+                String space = token.getLeftSpace();
+                if (space != null) {
+                    builder.append(space.equals(Token.VIRTUAL_SPACE) ? " " : space);
+                }
 
-//            String space = token.getLeftSpace();
-//            String space = null;
-            if (space != null) {
-//                space = previousToken.getRightSpace();
-                builder.append(space.equals(Token.VIRTUAL_SPACE) ? " " : space);
+                if (token instanceof Tag) {
+                    builder.append(token.getText());
+                } else {
+                    String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
+                    builder.append(XMLUtils.escapeText(text));
+                }
             }
+        } else {
+            Token previousToken = null;
+            for (Token token : this) {
+                String leftSpace = previousToken == null ? null : previousToken.getRightSpace();
+                String rightSpace = token.getLeftSpace();
+                String space = getSpace(leftSpace, rightSpace, previousToken instanceof Word, token instanceof Word);
 
-            if (token instanceof Tag) {
-                builder.append(token.getText());
-            } else {
-                String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
-                builder.append(XMLUtils.escapeText(text));
+                if (space != null) {
+                    builder.append(space.equals(Token.VIRTUAL_SPACE) ? " " : space);
+                }
+
+                if (token instanceof Tag) {
+                    builder.append(token.getText());
+                } else {
+                    String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
+                    builder.append(XMLUtils.escapeText(text));
+                }
+
+                previousToken = token;
             }
-
-            previousToken = token;
         }
 
         return builder.toString();

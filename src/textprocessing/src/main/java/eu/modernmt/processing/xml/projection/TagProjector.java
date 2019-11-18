@@ -71,6 +71,7 @@ public class TagProjector {
         if (previousToken != null) {
             previousToken.setRightSpace(null);
         }
+        translation.setSpaceConsistent(true);
 
     }
 
