@@ -344,6 +344,7 @@ public class SentenceBuilder {
                 }
             }
 
+
             /*compute tagPosition*/
             /*the current tag position is the amount of words in the words list*/
             tagPosition = words.size();
@@ -374,6 +375,26 @@ public class SentenceBuilder {
                 tags.add((Tag) token);
             } else if (token instanceof Word) {
                 words.add((Word) token);
+            }
+        }
+
+        if (!tags.isEmpty()) {
+            int currentTagIdx = 0;
+
+            for (int wordPos = 0; wordPos < words.size(); wordPos++) {
+                while (currentTagIdx < tags.size()) {
+                    Tag currentTag = tags.get(currentTagIdx);
+                    if (currentTag.getPosition() > wordPos+1) {
+                        break;
+                    }
+
+                    if (currentTag.hasRightSpace()) {
+                        Word word = words.get(wordPos);
+                        word.setTagRightSpaceRequired(true);
+                    }
+
+                    currentTagIdx++;
+                }
             }
         }
 

@@ -47,7 +47,6 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
 
             if (!alignment.contains(probe))
                 continue;
-
             Word sourceWord = sourceWords[point.source];
             Word targetWord = targetWords[point.target];
 
