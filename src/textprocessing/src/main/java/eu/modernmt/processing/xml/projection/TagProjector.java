@@ -35,7 +35,6 @@ public class TagProjector {
                     translationTags.populate(translationTree);
 
                     translation.setTags(translationTags.getTags());
-                    simpleSpaceAnalysis(translation);
                 }
             }
             simpleSpaceAnalysis(translation);
