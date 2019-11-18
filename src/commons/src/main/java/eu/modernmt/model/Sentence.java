@@ -127,9 +127,11 @@ public class Sentence implements Serializable, Iterable<Token> {
     public static String getSpace(String prevSpace, String leftSpace, String rightSpace, boolean leftIsWord, boolean rightIsWord) {
 //        String rightSpace = rightToken.getLeftSpace();
 
-        String space = null;
+        String space;
 
-        if (prevSpace != null) {
+        if (prevSpace == null) {
+            space = leftSpace;
+        } else {
             space = passSpace(prevSpace, leftSpace);
         }
 /*
@@ -188,7 +190,7 @@ left    real1   real1   real1   real2
                 null    virt    real2
 left    null    null    null    real2
 left    virt    null    null    real2
-left    real1   real1   real1   real2
+left    real1   real1   real1   real1
  */
                 if (space == null || space == Token.VIRTUAL_SPACE) {
                     if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
