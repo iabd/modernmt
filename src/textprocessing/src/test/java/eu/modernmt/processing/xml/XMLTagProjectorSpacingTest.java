@@ -54,7 +54,7 @@ public class XMLTagProjectorSpacingTest {
     public void testTranslationWithDiscordantTagSpacing_TrueFalse() {
         Translation translation = translation(new Word[]{
                 new Word("Hello", null, " "),
-                new Word("world", null, " "),
+                new Word("world", null, null),
                 new Word("!", " ", null),
         }, new Tag[]{
                 Tag.fromText("<a>", " ", null, 1),

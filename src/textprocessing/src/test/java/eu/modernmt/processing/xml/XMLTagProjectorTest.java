@@ -56,7 +56,7 @@ public class XMLTagProjectorTest {
         });
 
         Translation translation = new Translation(new Word[]{
-                new Word("mondo", null, " "),
+                new Word("mondo", null, null),
                 new Word("ciao", " ", null),
                 new Word("!", null, null),
         }, source, Alignment.fromAlignmentPairs(new int[][]{
