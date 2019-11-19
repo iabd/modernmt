@@ -2,6 +2,10 @@
     <!-- Pre EditableString processors -->
     <processor>eu.modernmt.processing.normalizers.ControlCharsRemover</processor>
     <processor source="en fr it nl">eu.modernmt.processing.normalizers.apos.ApostropheNormalizer</processor>
+
+    <!-- Space Placeholders -->
+    <processor>eu.modernmt.processing.normalizers.SpacePlaceholderEncoder</processor>
+
     <processor>eu.modernmt.processing.string.SentenceConstructor</processor>
 
     <!-- XML preprocessors -->

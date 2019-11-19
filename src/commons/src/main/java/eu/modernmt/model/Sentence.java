@@ -1,7 +1,6 @@
 package eu.modernmt.model;
 
 import eu.modernmt.xml.XMLUtils;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +10,8 @@ import java.util.Set;
  * Created by davide on 17/02/16.
  */
 public class Sentence implements Serializable, Iterable<Token> {
+    public static final String TAB_PLACEHOLDER = "tabPlaceholder";
+    public static final String NL_PLACEHOLDER = "nlPlaceholder";
 
     protected final Word[] words;
     protected Tag[] tags;
@@ -248,6 +249,11 @@ left    real1   real1   real1   real1+real2
                 }
                 prevSpace = middleSpace;
 
+                if (((Tag) token).getName() .equals(Sentence.TAB_PLACEHOLDER)) {
+                    builder.append('\t');
+                } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                    builder.append('\n');
+                }
             } else {
                 if (middleSpace != null) {
                     if (foundFirstWord)
@@ -280,7 +286,13 @@ left    real1   real1   real1   real1+real2
                 }
 
                 if (token instanceof Tag) {
-                    builder.append(token.getText());
+                    if (((Tag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
+                        builder.append('\t');
+                    } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                        builder.append('\n');
+                    } else {
+                        builder.append(token.getText());
+                    }
                 } else {
                     String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
                     builder.append(XMLUtils.escapeText(text));
@@ -298,7 +310,13 @@ left    real1   real1   real1   real1+real2
                 }
 
                 if (token instanceof Tag) {
-                    builder.append(token.getText());
+                    if (((Tag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
+                        builder.append('\t');
+                    } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                        builder.append('\n');
+                    } else {
+                        builder.append(token.getText());
+                    }
                 } else {
                     String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
                     builder.append(XMLUtils.escapeText(text));
