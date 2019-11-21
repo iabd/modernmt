@@ -24,7 +24,7 @@ public class Sentence implements Serializable, Iterable<Token> {
 
     public Sentence(Word[] words, Tag[] tags) {
         this.words = words == null ? new Word[0] : words;
-        this.tags = tags == null ? new Tag[0] : tags;
+        this.tags = tags == null ? new XMLTag[0] : tags;
     }
 
     public Word[] getWords() {
@@ -121,26 +121,18 @@ public class Sentence implements Serializable, Iterable<Token> {
         return space;
     }
 
-    public static String getSpace(String leftSpace, String rightSpace, boolean leftIsWord, boolean rightIsWord){
-        return getSpace(null, leftSpace, rightSpace, leftIsWord, rightIsWord);
+    public static String getSpace(Token leftToken, Token rightToken) {
+        return getSpace(null, leftToken, rightToken);
     }
 
-    public static String getSpace(String prevSpace, String leftSpace, String rightSpace, boolean leftIsWord, boolean rightIsWord) {
-//        String rightSpace = rightToken.getLeftSpace();
+    public static String getSpace(String prevSpace, Token leftToken, Token rightToken) {
+        String leftSpace = leftToken != null ? leftToken.getRightSpace() : null;
+        String rightSpace = rightToken != null ? rightToken.getLeftSpace() : null;
+        boolean leftIsWord = leftToken instanceof Word;
+        boolean rightIsWord = rightToken instanceof Word;
 
-        String space;
+        String space = prevSpace == null ? leftSpace : passSpace(prevSpace, leftSpace);
 
-        if (prevSpace == null) {
-            space = leftSpace;
-        } else {
-            space = passSpace(prevSpace, leftSpace);
-        }
-/*
-        if (leftToken != null) {
-//            space = leftSpace;
-            space = passSpace(prevSpace, leftSpace);
-        }
-*/
 
         if (leftIsWord) {
             if (rightIsWord) { // left:Word, right:Word
@@ -153,12 +145,12 @@ left    real1   real1   real1   real1+real2
 */
                 if (space == null) {
                     space = rightSpace;
-                } else if (space == Token.VIRTUAL_SPACE) {
+                } else if (space.equals(Token.VIRTUAL_SPACE)) {
                     if (rightSpace != null) {
                         space = rightSpace;
                     }
                 } else {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         if (!space.equals(rightSpace)) { //both real space but different
                             space = space + rightSpace;
                         }
@@ -173,13 +165,13 @@ left    virt    null    null    real2
 left    real1   real1   real1   real2
 */
                 if (space == null || space == Token.VIRTUAL_SPACE) {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         space = rightSpace;
                     } else {
                         space = null;
                     }
                 } else {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         space = rightSpace;
                     }
                 }
@@ -193,8 +185,8 @@ left    null    null    null    real2
 left    virt    null    null    real2
 left    real1   real1   real1   real1
  */
-                if (space == null || space == Token.VIRTUAL_SPACE) {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                if (space == null || space.equals(Token.VIRTUAL_SPACE)) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         space = rightSpace;
                     } else {
                         space = null;
@@ -208,14 +200,14 @@ left    null    null    null    real2
 left    virt    null    null    real2
 left    real1   real1   real1   real1+real2
 */
-                if (space == null || space == Token.VIRTUAL_SPACE) {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                if (space == null || space.equals(Token.VIRTUAL_SPACE)) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         space = rightSpace;
                     } else {
                         space = null;
                     }
                 } else {
-                    if (rightSpace != null && rightSpace != Token.VIRTUAL_SPACE) {
+                    if (rightSpace != null && !rightSpace.equals(Token.VIRTUAL_SPACE)) {
                         if (!space.equals(rightSpace)) { //both real spaces, but different
                             space = space + rightSpace;
                         }
@@ -239,9 +231,7 @@ left    real1   real1   real1   real1+real2
         String prevSpace = null;
 
         for (Token token : this) {
-            String leftSpace = previousToken == null ? null :previousToken.getRightSpace();
-            String rightSpace = token.getLeftSpace();
-            middleSpace = getSpace(prevSpace, leftSpace, rightSpace, previousToken instanceof  Word, token instanceof Word);
+            middleSpace = previousToken != null ? getSpace(prevSpace, previousToken, token) : null;
 
             if (token instanceof Tag) {
                 if (foundFirstWord && prevSpace == null) {
@@ -249,15 +239,19 @@ left    real1   real1   real1   real1+real2
                 }
                 prevSpace = middleSpace;
 
-                if (((Tag) token).getName() .equals(Sentence.TAB_PLACEHOLDER)) {
-                    builder.append('\t');
-                } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
-                    builder.append('\n');
+                if (token instanceof WhitespaceTag) {
+                    if (((WhitespaceTag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
+                        builder.append('\t');
+                    } else if (((WhitespaceTag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                        builder.append('\n');
+                    } else {
+                        builder.append(token.getText());
+                    }
                 }
             } else {
                 if (middleSpace != null) {
                     if (foundFirstWord)
-                        builder.append(middleSpace);
+                        builder.append(middleSpace.equals(Token.VIRTUAL_SPACE) ? " " : middleSpace);
                 } else {
                     if (printSpace && foundFirstWord)
                         builder.append(" ");
@@ -285,15 +279,17 @@ left    real1   real1   real1   real1+real2
                     builder.append(space.equals(Token.VIRTUAL_SPACE) ? " " : space);
                 }
 
-                if (token instanceof Tag) {
-                    if (((Tag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
+                if (token instanceof WhitespaceTag) {
+                    if (((WhitespaceTag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
                         builder.append('\t');
-                    } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                    } else if (((WhitespaceTag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
                         builder.append('\n');
                     } else {
                         builder.append(token.getText());
                     }
-                } else {
+                } else if (token instanceof XMLTag) {
+                    builder.append(token.getText());
+                }  else {
                     String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
                     builder.append(XMLUtils.escapeText(text));
                 }
@@ -301,22 +297,22 @@ left    real1   real1   real1   real1+real2
         } else {
             Token previousToken = null;
             for (Token token : this) {
-                String leftSpace = previousToken == null ? null : previousToken.getRightSpace();
-                String rightSpace = token.getLeftSpace();
-                String space = getSpace(leftSpace, rightSpace, previousToken instanceof Word, token instanceof Word);
+                String space = previousToken != null ? getSpace(previousToken, token) : null;
 
                 if (space != null) {
                     builder.append(space.equals(Token.VIRTUAL_SPACE) ? " " : space);
                 }
 
-                if (token instanceof Tag) {
-                    if (((Tag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
+                if (token instanceof WhitespaceTag) {
+                    if (((WhitespaceTag) token).getName().equals(Sentence.TAB_PLACEHOLDER)) {
                         builder.append('\t');
-                    } else if (((Tag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
+                    } else if (((WhitespaceTag) token).getName().equals(Sentence.NL_PLACEHOLDER)) {
                         builder.append('\n');
                     } else {
                         builder.append(token.getText());
                     }
+                } else if (token instanceof XMLTag) {
+                    builder.append(token.getText());
                 } else {
                     String text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();
                     builder.append(XMLUtils.escapeText(text));

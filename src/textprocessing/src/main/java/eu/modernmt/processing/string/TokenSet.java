@@ -15,7 +15,7 @@ import java.util.List;
 public class TokenSet {
     /*List of Word Tokens*/
     public final List<Word> words;
-    /*List of Tag Tokens*/
+    /*List of XMLTag Tokens*/
     public final List<Tag> tags;
 
     /**
@@ -24,7 +24,7 @@ public class TokenSet {
      * generated during tokenization.
      *
      * @param words Lisf of Word tokens generated during tokenization
-     * @param tags  List of Tag Tokens generated during tokenization
+     * @param tags  List of XMLTag Tokens generated during tokenization
      */
     public TokenSet(List<Word> words, List<Tag> tags) {
         this.words = words;

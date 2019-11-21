@@ -2,7 +2,7 @@ package eu.modernmt.processing.xml.projection;
 
 import java.util.*;
 
-import static eu.modernmt.model.Tag.Type;
+import static eu.modernmt.model.XMLTag.Type;
 
 class SpanTree {
     public class Node implements Comparable<Node> {

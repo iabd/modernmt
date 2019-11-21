@@ -18,11 +18,11 @@ import java.util.Map;
 /**
  * Created by davide on 24/03/17.
  */
-public class WhitespaceProjector extends TextProcessor<Translation, Translation> {
+public class SpaceProjector extends TextProcessor<Translation, Translation> {
 
     private final JFlexSpaceAnnotator annotator;
 
-    public WhitespaceProjector(Language sourceLanguage, Language targetLanguage) {
+    public SpaceProjector(Language sourceLanguage, Language targetLanguage) {
         super(sourceLanguage, targetLanguage);
         this.annotator = JFlexDetokenizer.newAnnotator(sourceLanguage);
     }
@@ -50,7 +50,7 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
             Word sourceWord = sourceWords[point.source];
             Word targetWord = targetWords[point.target];
 
-            //project the space between under given conditiona
+            //project the space between under given conditions
             if ((sourceWord.isRightSpaceRequired() && targetWord.hasRightSpace()) ||
                     (!sourceWord.isRightSpaceRequired() && sourceWord.hasRightSpace()))
                 targetWord.setRightSpace(sourceWord.getRightSpace());
@@ -62,7 +62,7 @@ public class WhitespaceProjector extends TextProcessor<Translation, Translation>
             sourceWord = sourceWords[probe.source];
             targetWord = targetWords[probe.target];
 
-            //project the space between under given conditiona
+            //project the space between under given conditions
             if ((sourceWord.isLeftSpaceRequired() && targetWord.hasLeftSpace()) ||
                     (!sourceWord.isLeftSpaceRequired() && sourceWord.hasLeftSpace()))
                 targetWord.setLeftSpace(sourceWord.getLeftSpace());

@@ -57,9 +57,7 @@ public class TagProjector {
             if (previousToken == null) {
                 token.setLeftSpace(null);
             } else {
-                String leftSpace = previousToken.getRightSpace();
-                String rightSpace = token.getLeftSpace();
-                String space = Sentence.getSpace(leftSpace, rightSpace, previousToken instanceof Word, token instanceof Word);
+                String space = Sentence.getSpace(previousToken, token);
 
                 previousToken.setRightSpace(space);
                 token.setLeftSpace(space);

@@ -34,7 +34,7 @@ public class Translation extends Sentence {
         this(words, null, source, wordAlignment);
     }
 
-    public Translation(Word[] words, Tag[] tags, Sentence source, Alignment wordAlignment) {
+    public Translation(Word[] words, XMLTag[] tags, Sentence source, Alignment wordAlignment) {
         super(words, tags);
         this.source = source;
         this.wordAlignment = wordAlignment;

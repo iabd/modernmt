@@ -17,9 +17,9 @@ public class XMLTagProjectorTest {
                 new Word("hello", null, " "),
                 new Word("world", null, null),
                 new Word("!", null, null),
-        }, new Tag[]{
-                Tag.fromText("<b>", " ", null, 1),
-                Tag.fromText("</b>", null, null, 2),
+        }, new XMLTag[]{
+                XMLTag.fromText("<b>", " ", null, 1),
+                XMLTag.fromText("</b>", null, null, 2),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -36,9 +36,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("ciao <b>mondo</b>!", translation.toString());
         assertEquals("ciao mondo !", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<b>", " ", null, 1),
-                Tag.fromText("</b>", null, null, 2),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<b>", " ", null, 1),
+                XMLTag.fromText("</b>", null, null, 2),
         }, translation.getTags());
     }
 
@@ -50,9 +50,9 @@ public class XMLTagProjectorTest {
                 new Word("hello", null , " "),
                 new Word("world", null, null),
                 new Word("!", null, null),
-        }, new Tag[]{
-                Tag.fromText("<b>", " ", null, 1),
-                Tag.fromText("</b>", null, null, 2),
+        }, new XMLTag[]{
+                XMLTag.fromText("<b>", " ", null, 1),
+                XMLTag.fromText("</b>", null, null, 2),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -69,9 +69,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("<b>mondo</b> ciao!", translation.toString());
         assertEquals("mondo ciao!", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<b>", null, null, 0),
-                Tag.fromText("</b>", null, " ", 1),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<b>", null, null, 0),
+                XMLTag.fromText("</b>", null, " ", 1),
         }, translation.getTags());
     }
 
@@ -86,8 +86,8 @@ public class XMLTagProjectorTest {
                 new Word("an", " ", " "),
                 new Word("empty", null, " "),
                 new Word("tag", " ", null),
-        }, new Tag[]{
-                Tag.fromText("<empty/>", " ", null, 3),
+        }, new XMLTag[]{
+                XMLTag.fromText("<empty/>", " ", null, 3),
         });
         Translation translation = new Translation(new Word[]{
                 new Word("Esempio", null, " "),
@@ -106,8 +106,8 @@ public class XMLTagProjectorTest {
         new TagProjector().project(translation);
 
         assertEquals("Esempio con un tag <empty/>empty", translation.toString());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<empty/>", " ", null, 4),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<empty/>", " ", null, 4),
         }, translation.getTags());
         assertEquals("Esempio con un tag empty", translation.toString(false, false));
     }
@@ -120,9 +120,9 @@ public class XMLTagProjectorTest {
                 new Word("hello",null, " "),
                 new Word("world", null, null),
                 new Word("!", null, null),
-        }, new Tag[]{
-                Tag.fromText("<g>", " ", null, 1),
-                Tag.fromText("</g>", null, null, 1),
+        }, new XMLTag[]{
+                XMLTag.fromText("<g>", " ", null, 1),
+                XMLTag.fromText("</g>", null, null, 1),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -139,9 +139,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("ciao <g></g>mondo!", translation.toString());
         assertEquals("ciao mondo!", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<g>", " ", null, 1),
-                Tag.fromText("</g>", null, null, 1),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<g>", " ", null, 1),
+                XMLTag.fromText("</g>", null, null, 1),
         }, translation.getTags());
     }
 
@@ -154,9 +154,9 @@ public class XMLTagProjectorTest {
                 new Word("hello", null, " "),
                 new Word("world", null, null),
                 new Word("!", null, null),
-        }, new Tag[]{
-                Tag.fromText("<g>", " ", null, 1),
-                Tag.fromText("</g>", null, null, 1),
+        }, new XMLTag[]{
+                XMLTag.fromText("<g>", " ", null, 1),
+                XMLTag.fromText("</g>", null, null, 1),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -173,9 +173,9 @@ public class XMLTagProjectorTest {
         //System.out.println(translation.getSource().toString());
         assertEquals("<g></g>mondo ciao!", translation.toString());
         assertEquals("mondo ciao!", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<g>", null, null, 0),
-                Tag.fromText("</g>", null, null, 0),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<g>", null, null, 0),
+                XMLTag.fromText("</g>", null, null, 0),
         }, translation.getTags());
     }
 
@@ -189,8 +189,8 @@ public class XMLTagProjectorTest {
                 new Word("a", null, " "),
                 new Word("malformed", " ", " "),
                 new Word("tag", " ", null),
-        }, new Tag[]{
-                Tag.fromText("<open>", " ", null, 2),
+        }, new XMLTag[]{
+                XMLTag.fromText("<open>", " ", null, 2),
         });
         Translation translation = new Translation(new Word[]{
                 new Word("Esempio", null, " "),
@@ -210,8 +210,8 @@ public class XMLTagProjectorTest {
 
         assertEquals("Esempio con <open>un tag malformato", translation.toString());
         assertEquals("Esempio con un tag malformato", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<open>", " ", null, 2),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<open>", " ", null, 2),
         }, translation.getTags());
     }
 
@@ -225,8 +225,8 @@ public class XMLTagProjectorTest {
                 new Word("a", null, " "),
                 new Word("malformed", " ", " "),
                 new Word("tag", " ", null),
-        }, new Tag[]{
-                Tag.fromText("</close>", null, " ", 2),
+        }, new XMLTag[]{
+                XMLTag.fromText("</close>", null, " ", 2),
         });
         Translation translation = new Translation(new Word[]{
                 new Word("Esempio", null, " "),
@@ -246,8 +246,8 @@ public class XMLTagProjectorTest {
 
         assertEquals("Esempio con</close> un tag malformato", translation.toString());
         assertEquals("Esempio con un tag malformato", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("</close>", null, " ", 2),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("</close>", null, " ", 2),
         }, translation.getTags());
     }
 /*
@@ -261,11 +261,11 @@ public class XMLTagProjectorTest {
                 new Word("with", null," "),
                 new Word("nested", " ", " "),
                 new Word("tag", null, null),
-        }, new Tag[]{
-                Tag.fromText("<a>", " ", null, 1),
-                Tag.fromText("<b>", " ", null, 3),
-                Tag.fromText("</b>", null, null, 4),
-                Tag.fromText("</a>", null, null, 4),
+        }, new XMLTag[]{
+                XMLTag.fromText("<a>", " ", null, 1),
+                XMLTag.fromText("<b>", " ", null, 3),
+                XMLTag.fromText("</b>", null, null, 4),
+                XMLTag.fromText("</a>", null, null, 4),
         });
         Translation translation = new Translation(new Word[]{
                 new Word("Esempio", null, " "),
@@ -283,11 +283,11 @@ public class XMLTagProjectorTest {
 
         assertEquals("Esempio <a>con <b>tag</b> innestati</a>", translation.toString());
         assertEquals("Esempio con tag innestati", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<a>", " ", null, 1),
-                Tag.fromText("<b>", " ", null, 2),
-                Tag.fromText("</b>", null, " ", 3),
-                Tag.fromText("</a>", null, null, 4),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<a>", " ", null, 1),
+                XMLTag.fromText("<b>", " ", null, 2),
+                XMLTag.fromText("</b>", null, " ", 3),
+                XMLTag.fromText("</a>", null, null, 4),
         }, translation.getTags());
     }
 */
@@ -301,9 +301,9 @@ public class XMLTagProjectorTest {
                 new Word("with", " ", " "),
                 new Word("XML", " ", " "),
                 new Word("comment", " ", " "),
-        }, new Tag[]{
-                Tag.fromText("<!--", " ", " ", 2),
-                Tag.fromText("-->", " ", null, 4),
+        }, new XMLTag[]{
+                XMLTag.fromText("<!--", " ", " ", 2),
+                XMLTag.fromText("-->", " ", null, 4),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -322,9 +322,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("Esempio con <!-- commenti XML -->", translation.toString());
         assertEquals("Esempio con commenti XML", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<!--", " ", " ", 2),
-                Tag.fromText("-->", " ", null, 4),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<!--", " ", " ", 2),
+                XMLTag.fromText("-->", " ", null, 4),
         }, translation.getTags());
     }
 
@@ -337,9 +337,9 @@ public class XMLTagProjectorTest {
                 new Word("with", " ", " "),
                 new Word("XML", null, " "),
                 new Word("comment", " ", null),
-        }, new Tag[]{
-                Tag.fromText("<!--", " ", null, 2),
-                Tag.fromText("-->", null, null, 4),
+        }, new XMLTag[]{
+                XMLTag.fromText("<!--", " ", null, 2),
+                XMLTag.fromText("-->", null, null, 4),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -358,9 +358,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("Esempio con <!--commenti XML-->", translation.toString());
         assertEquals("Esempio con commenti XML", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<!--", " ", null, 2),
-                Tag.fromText("-->", null, null, 4),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<!--", " ", null, 2),
+                XMLTag.fromText("-->", null, null, 4),
         }, translation.getTags());
     }
 
@@ -373,9 +373,9 @@ public class XMLTagProjectorTest {
                 new Word("is", " ", " "),
                 new Word("a", " ", " "),
                 new Word("test", " " ,null),
-        }, new Tag[]{
-                Tag.fromText("<!--", null, null, 0),
-                Tag.fromText("-->", null, null, 4),
+        }, new XMLTag[]{
+                XMLTag.fromText("<!--", null, null, 0),
+                XMLTag.fromText("-->", null, null, 4),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -394,9 +394,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("<!--Questo è un esempio-->", translation.toString());
         assertEquals("Questo è un esempio", translation.toString(false, false));
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<!--", null, null, 0),
-                Tag.fromText("-->", null, null, 4),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<!--", null, null, 0),
+                XMLTag.fromText("-->", null, null, 4),
         }, translation.getTags());
     }
 
@@ -406,8 +406,8 @@ public class XMLTagProjectorTest {
         //target:  "<!ENTITY key="value"> Prova"
         Sentence source = new Sentence(new Word[]{
                 new Word("Test", " ", null),
-        }, new Tag[]{
-                Tag.fromText("<!ENTITY key=\"value\">", null, " ", 0),
+        }, new XMLTag[]{
+                XMLTag.fromText("<!ENTITY key=\"value\">", null, " ", 0),
         });
 
         Translation translation = new Translation(new Word[]{
@@ -420,16 +420,16 @@ public class XMLTagProjectorTest {
 
         assertEquals("Prova", translation.toString(false, false));
         assertEquals("<!ENTITY key=\"value\"> Prova", translation.toString());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<!ENTITY key=\"value\">", null, " ", 0),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<!ENTITY key=\"value\">", null, " ", 0),
         }, translation.getTags());
     }
 
     @Test
     public void testOnlyTags() throws Throwable {
-        Sentence source = new Sentence(null, new Tag[]{
-                Tag.fromText("<a>", null, null, 0),
-                Tag.fromText("</a>", null, null, 0),
+        Sentence source = new Sentence(null, new XMLTag[]{
+                XMLTag.fromText("<a>", null, null, 0),
+                XMLTag.fromText("</a>", null, null, 0),
         });
 
         Translation translation = new Translation(null, source, null);
@@ -438,9 +438,9 @@ public class XMLTagProjectorTest {
 
         assertEquals("<a></a>", translation.toString());
         assertTrue(translation.toString(false, false).isEmpty());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<a>", null, null, 0),
-                Tag.fromText("</a>", null, null, 0),
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<a>", null, null, 0),
+                XMLTag.fromText("</a>", null, null, 0),
         }, translation.getTags());
     }
 

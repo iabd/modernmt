@@ -1,7 +1,7 @@
 package eu.modernmt.processing.xml;
 
 import eu.modernmt.model.Sentence;
-import eu.modernmt.model.Tag;
+import eu.modernmt.model.XMLTag;
 import eu.modernmt.model.Token;
 
 import static org.junit.Assert.fail;
@@ -20,9 +20,9 @@ public class Assertions {
 
         for (int i = 0; i < tokens.length; i++) {
             Token token = tokens[i];
-            if (!(token instanceof Tag))
+            if (!(token instanceof XMLTag))
                 continue;
-            Tag tag = (Tag) token;
+            XMLTag tag = (XMLTag) token;
 
             if (i == 0) {
                 if (tag.hasLeftSpace())
@@ -30,7 +30,7 @@ public class Assertions {
             } else {
                 Token previous = tokens[i - 1];
                 if (tag.hasLeftSpace() != previous.hasRightSpace())
-                    fail("XML Tag at position " + i + " has inconsistent left space information: expected " + previous.hasRightSpace() + ", found " + tag.hasLeftSpace());
+                    fail("XML XMLTag at position " + i + " has inconsistent left space information: expected " + previous.hasRightSpace() + ", found " + tag.hasLeftSpace());
             }
         }
     }

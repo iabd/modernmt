@@ -1,72 +1,8 @@
 package eu.modernmt.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+public abstract class Tag extends Token implements Comparable<Tag> {
 
-public class Tag extends Token implements Comparable<Tag> {
-
-    private static final String TAG_NAME = "(\\p{Alpha}|_|:)(\\p{Alpha}|\\p{Digit}|\\.|-|_|:|)*";
-
-    private static final Pattern TagNameRegex = Pattern.compile(TAG_NAME);
-    public static final Pattern TagRegex = Pattern.compile(
-            "(<(" + TAG_NAME + ")[^>]*/?>)|" +
-                    "(<!(" + TAG_NAME + ")[^>]*[^/]>)|" +
-                    "(</(" + TAG_NAME + ")[^>]*>)|" +
-                    "(<!--)|(-->)");
-
-    public enum Type {
-        OPENING_TAG,
-        CLOSING_TAG,
-        EMPTY_TAG,
-    }
-
-    public static Tag fromText(String text) {
-        return fromText(text, null, null, -1);
-    }
-
-    public static Tag fromText(String text, String leftSpace, String rightSpace, int position) {
-        if ("<!--".equals(text)) {
-            return new Tag("--", text, leftSpace, rightSpace, position, Type.OPENING_TAG, false);
-        } else if ("-->".equals(text)) {
-            return new Tag("--", text, leftSpace, rightSpace, position, Type.CLOSING_TAG, false);
-        }
-
-        int length = text.length();
-
-        if (length < 3)
-            throw new IllegalArgumentException("Invalid tag: " + text);
-
-        String name;
-        Type type;
-        boolean dtd = false;
-        int nameStartPosition = 1;
-
-        if (text.charAt(1) == '!') {
-            dtd = true;
-            type = Type.OPENING_TAG;
-            nameStartPosition = 2;
-        } else if (text.charAt(1) == '/') {
-            type = Type.CLOSING_TAG;
-            nameStartPosition = 2;
-        } else if (text.charAt(length - 2) == '/') {
-            type = Type.EMPTY_TAG;
-        } else {
-            type = Type.OPENING_TAG;
-        }
-
-        Matcher matcher = TagNameRegex.matcher(text);
-        if (!matcher.find(nameStartPosition))
-            throw new IllegalArgumentException("Invalid tag: " + text);
-        name = matcher.group();
-
-        return new Tag(name, text, leftSpace, rightSpace, position, type, dtd);
-    }
-
-    public static Tag fromTag(Tag other) {
-        return new Tag(other.name, other.text, other.leftSpace, other.rightSpace, other.position, other.type, other.dtd);
-    }
-
-    protected Type type; /* tag type */
+    protected Tag.Type type; /* tag type */
     protected final String name; /* tag name */
     /* position of the word after which the tag is placed; indexes of words start from 0
     e.g. a tag at the beginning of the sentence has position=0
@@ -75,7 +11,14 @@ public class Tag extends Token implements Comparable<Tag> {
     protected int position;
     protected boolean dtd;
 
-    protected Tag(String name, String text, String leftSpace, String rightSpace, int position, Type type, boolean dtd) {
+    public enum Type {
+        OPENING_TAG,
+        CLOSING_TAG,
+        EMPTY_TAG
+    }
+
+
+    protected Tag(String name, String text, String leftSpace, String rightSpace, int position, Tag.Type type, boolean dtd) {
         super(text, text, leftSpace, rightSpace);
         this.position = position;
         this.type = type;
@@ -91,28 +34,16 @@ public class Tag extends Token implements Comparable<Tag> {
         this.position = position;
     }
 
-    public Type getType() {
+    public Tag.Type getType() {
         return type;
     }
 
-    public void setType(Type type) {
+    public void setType(Tag.Type type) {
         this.type = type;
     }
 
     public String getName() {
         return name;
-    }
-
-    public boolean isEmptyTag() {
-        return this.type == Type.EMPTY_TAG;
-    }
-
-    public boolean isOpeningTag() {
-        return this.type == Type.OPENING_TAG;
-    }
-
-    public boolean isClosingTag() {
-        return this.type == Type.CLOSING_TAG;
     }
 
     public boolean isDTD() {
@@ -123,13 +54,28 @@ public class Tag extends Token implements Comparable<Tag> {
         return "--".equals(name);
     }
 
+
+    public boolean isEmptyTag() {
+        return this.type == Tag.Type.EMPTY_TAG;
+    }
+
+    public boolean isOpeningTag() {
+        return this.type == Tag.Type.OPENING_TAG;
+    }
+
+    public boolean isClosingTag() {
+        return this.type == Type.CLOSING_TAG;
+    }
+
     public boolean closes(Tag other) {
-        return !this.dtd && this.type == Type.CLOSING_TAG && other.type == Type.OPENING_TAG && nameEquals(this.name, other.name);
+        return !this.dtd && this.type == Tag.Type.CLOSING_TAG && other.type == Tag.Type.OPENING_TAG && nameEquals(this.name, other.name);
     }
 
     public boolean opens(Tag other) {
-        return !this.dtd && this.type == Type.OPENING_TAG && other.type == Type.CLOSING_TAG && nameEquals(this.name, other.name);
+        return !this.dtd && this.type == Tag.Type.OPENING_TAG && other.type == Tag.Type.CLOSING_TAG && nameEquals(this.name, other.name);
     }
+
+
 
     private static boolean nameEquals(String n1, String n2) {
         if (n1 == null)
@@ -168,4 +114,3 @@ public class Tag extends Token implements Comparable<Tag> {
         return result;
     }
 }
-

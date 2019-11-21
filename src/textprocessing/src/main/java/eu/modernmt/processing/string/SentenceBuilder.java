@@ -1,9 +1,6 @@
 package eu.modernmt.processing.string;
 
-import eu.modernmt.model.Sentence;
-import eu.modernmt.model.Tag;
-import eu.modernmt.model.Token;
-import eu.modernmt.model.Word;
+import eu.modernmt.model.*;
 import eu.modernmt.processing.xml.XMLCharacterEntity;
 
 import java.util.*;
@@ -315,7 +312,7 @@ public class SentenceBuilder {
                     - rare chars
                     - whitespaces
                     - etc
-                XML tags lead to the creation of new Tag Transformations that are now in the
+                XML tags lead to the creation of new XMLTag Transformations that are now in the
                 tokenizable transformations list, so an XML tag can't be in a rightSpace.
 
                 Xml escaping sequences, rare chars and whitespaces on the contrary
@@ -351,16 +348,16 @@ public class SentenceBuilder {
 
             /*the original text is necessary to create the Token.
              However
-                - If the token is a Tag, it surely does not require XML escaping
+                - If the token is a XMLTag, it surely does not require XML escaping
                 - If it is a word, the original text may still contain
                        xml tags, xml escape sequences, rare chars and whitespaces
-                       However it is impossible to have XML tags (they would lead to a Tag Token)
+                       However it is impossible to have XML tags (they would lead to a XMLTag Token)
                        We are ok with whitespaces and rare chars
                        We still need xml escaping
                   Therefore, if we are creating a Word Token, unescape the originalText.
                  */
             String originalText;
-            if (tokenFactory == TokenFactory.TAG_FACTORY) {
+            if (tokenFactory == TokenFactory.TAG_FACTORY || tokenFactory == TokenFactory.WHITESPACE_TAG_FACTORY ) {
                 originalText = new String(originalChars, transformation.start, transformation.end - transformation.start);
             } else {
                 //originalText = XMLCharacterEntity.unescapeAll(originalChars, transformation.start, transformation.end - transformation.start);
@@ -371,7 +368,7 @@ public class SentenceBuilder {
             Token token = tokenFactory.build(originalText, placeholderText, leftSpace, rightSpace, tagPosition);
 
             /*put the token in the separate list corresponding to its class*/
-            if (token instanceof Tag) {
+            if (token instanceof XMLTag || token instanceof WhitespaceTag) {
                 tags.add((Tag) token);
             } else if (token instanceof Word) {
                 words.add((Word) token);
@@ -610,6 +607,23 @@ public class SentenceBuilder {
              * as a TokenFactory use a TAG_FACTORY*/
 
             this.setToken(startIndex, length, replacement, TokenFactory.TAG_FACTORY);
+        }
+
+        /**
+         * This method handles the specific request of a TAG Token.
+         * It thus requests the setting of a new Token,
+         * passing the specific TokenFactory TAG_FACTORY that is used
+         * to generate TAG Tokens.
+         *
+         * @param startIndex  first position of the text to edit in the current string
+         * @param length      length of the text to edit
+         * @param replacement string that must substitute the text to edit.
+         */
+        public void setWhitespaceTag(int startIndex, int length, String replacement) {
+            /*create the Transformation, put it in the Editor Transformations list;
+             * as a TokenFactory use a WHITESPACE_TAG_FACTORY*/
+
+            this.setToken(startIndex, length, replacement, TokenFactory.WHITESPACE_TAG_FACTORY);
         }
 
         /**

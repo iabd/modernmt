@@ -3,7 +3,7 @@ package eu.modernmt.processing;
 import eu.modernmt.lang.Language;
 import eu.modernmt.lang.LanguageDirection;
 import eu.modernmt.model.Sentence;
-import eu.modernmt.model.Tag;
+import eu.modernmt.model.XMLTag;
 import eu.modernmt.model.Word;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -59,8 +59,8 @@ public class PreprocessorTest {
                 new Word("world", "world", " " , null),
                 new Word("!", "!", null, null),
         }, sentence.getWords());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<a>", null ," ", 0)
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<a>", null ," ", 0)
         }, sentence.getTags());
     }
 
@@ -78,8 +78,8 @@ public class PreprocessorTest {
                 new Word("world", "world", " ", null),
                 new Word("!", "!", null, null),
         }, sentence.getWords());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<a>",  null, " ", 1)
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<a>",  null, " ", 1)
         }, sentence.getTags());
     }
 
@@ -97,9 +97,9 @@ public class PreprocessorTest {
                 new Word("world", "world", null, null),
                 new Word("!", "!", null,null),
         }, sentence.getWords());
-        assertArrayEquals(new Tag[]{
-                Tag.fromText("<a>", null, " ", 1),
-                Tag.fromText("<b>", " ", null, 1)
+        assertArrayEquals(new XMLTag[]{
+                XMLTag.fromText("<a>", null, " ", 1),
+                XMLTag.fromText("<b>", " ", null, 1)
         }, sentence.getTags());
     }
 

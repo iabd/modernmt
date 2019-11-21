@@ -24,8 +24,8 @@ public class SentenceTest {
                 new Word("Hello", " ", " "),
                 new Word("world", " ", null),
                 new Word("!", null, null),
-        }, new Tag[]{
-                Tag.fromText("<a>", null, " ", 0)
+        }, new XMLTag[]{
+                XMLTag.fromText("<a>", null, " ", 0)
         });
 
         assertEquals("<a> Hello world!", sentence.toString(true, false));
@@ -37,8 +37,8 @@ public class SentenceTest {
         Sentence sentence = new Sentence(new Word[]{
                 new Word("Hello", null, null),
                 new Word("world", " ", null),
-        }, new Tag[]{
-                Tag.fromText("<a>", null, " ", 1)
+        }, new XMLTag[]{
+                XMLTag.fromText("<a>", null, " ", 1)
         });
 
         assertEquals("Hello<a> world", sentence.toString(true, false));
@@ -50,9 +50,9 @@ public class SentenceTest {
         Sentence sentence = new Sentence(new Word[]{
                 new Word("Hello", null, null),
                 new Word("world", null, null),
-        }, new Tag[]{
-                Tag.fromText("<a>", null, " ", 1),
-                Tag.fromText("<b>", " ", null, 1)
+        }, new XMLTag[]{
+                XMLTag.fromText("<a>", null, " ", 1),
+                XMLTag.fromText("<b>", " ", null, 1)
         });
 
         assertEquals("Hello<a> <b>world", sentence.toString(true, false));
@@ -64,9 +64,9 @@ public class SentenceTest {
         Sentence sentence = new Sentence(new Word[]{
                 new Word("Hello", null, null),
                 new Word("world", null, null),
-        }, new Tag[]{
-                Tag.fromText("<a>", null, null, 1),
-                Tag.fromText("<b>", null, null, 1)
+        }, new XMLTag[]{
+                XMLTag.fromText("<a>", null, null, 1),
+                XMLTag.fromText("<b>", null, null, 1)
         });
 
         assertEquals("Hello<a><b>world", sentence.toString(true, false));

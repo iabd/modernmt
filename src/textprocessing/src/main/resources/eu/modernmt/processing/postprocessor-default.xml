@@ -20,7 +20,7 @@
     </processorGroup>
 
     <processor source="^ ja ko zh th" target="^ ja ko zh th">
-        eu.modernmt.processing.detokenizer.WhitespaceProjector
+        eu.modernmt.processing.detokenizer.SpaceProjector
     </processor>
 
     <processor source="fr">eu.modernmt.processing.normalizers.GuillemetsToQuotesProcessor</processor>

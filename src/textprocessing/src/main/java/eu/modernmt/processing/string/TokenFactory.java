@@ -1,7 +1,8 @@
 package eu.modernmt.processing.string;
 
-import eu.modernmt.model.Tag;
+import eu.modernmt.model.XMLTag;
 import eu.modernmt.model.Token;
+import eu.modernmt.model.WhitespaceTag;
 import eu.modernmt.model.Word;
 
 /**
@@ -28,17 +29,32 @@ public interface TokenFactory {
     };
 
     /**
-     * A TAG_FACTORY is an implementation of Token Factory that creates Words
+     * A TAG_FACTORY is an implementation of Token Factory that creates Tags
      */
     TokenFactory TAG_FACTORY = new TokenFactory() {
         @Override
-        public Tag build(String text, String placeholder, String leftSpace, String rightSpace, int position) {
-            return Tag.fromText(text, leftSpace, rightSpace, position);
+        public XMLTag build(String text, String placeholder, String leftSpace, String rightSpace, int position) {
+            return XMLTag.fromText(text, leftSpace, rightSpace, position);
         }
 
         @Override
         public String toString() {
-            return "Tag Factory";
+            return "XMLTag Factory";
+        }
+    };
+
+    /**
+     * A WHITESPACE TAG_FACTORY is an implementation of Token Factory that creates WhitespaceTags
+     */
+    TokenFactory WHITESPACE_TAG_FACTORY = new TokenFactory() {
+        @Override
+        public WhitespaceTag build(String text, String placeholder, String leftSpace, String rightSpace, int position) {
+            return WhitespaceTag.fromText(text, leftSpace, rightSpace, position);
+        }
+
+        @Override
+        public String toString() {
+            return "Whitespace XMLTag Factory";
         }
     };
 

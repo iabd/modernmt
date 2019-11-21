@@ -1,6 +1,7 @@
 package eu.modernmt.processing.xml.format;
 
 import eu.modernmt.model.Tag;
+import eu.modernmt.model.XMLTag;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +23,7 @@ public class XliffInputFormat implements InputFormat {
     public void transform(Tag[] tags) {
         for (Tag tag : tags) {
             if (OPENING_TAGS.contains(tag.getName())) {
-                tag.setType(Tag.Type.OPENING_TAG);
+                tag.setType(XMLTag.Type.OPENING_TAG);
             }
         }
 

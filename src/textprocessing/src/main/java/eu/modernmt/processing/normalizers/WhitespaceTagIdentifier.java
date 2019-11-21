@@ -1,6 +1,6 @@
-package eu.modernmt.processing.xml;
+package eu.modernmt.processing.normalizers;
 
-import eu.modernmt.model.XMLTag;
+import eu.modernmt.model.WhitespaceTag;
 import eu.modernmt.processing.TextProcessor;
 import eu.modernmt.processing.string.SentenceBuilder;
 
@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
  * handles the identification of XML Tags and requests
  * to the StringBuider editor their replacement witn a single white space.
  */
-public class XMLTagIdentifier extends TextProcessor<SentenceBuilder, SentenceBuilder> {
+public class WhitespaceTagIdentifier extends TextProcessor<SentenceBuilder, SentenceBuilder> {
 
     /**
      * This method uses a Matcher to find all XML tags
@@ -33,7 +33,7 @@ public class XMLTagIdentifier extends TextProcessor<SentenceBuilder, SentenceBui
     public SentenceBuilder call(SentenceBuilder builder, Map<String, Object> metadata) {
 
         /*find all substrings matching XML tags in the SentenceBuilder current String*/
-        Matcher m = XMLTag.TagRegex.matcher(builder.toString());
+        Matcher m = WhitespaceTag.TagRegex.matcher(builder.toString());
 
         SentenceBuilder.Editor editor = builder.edit();
 
@@ -44,7 +44,7 @@ public class XMLTagIdentifier extends TextProcessor<SentenceBuilder, SentenceBui
             int start = m.start();
             int end = m.end();
 
-            editor.setTag(start, end - start, " ");
+            editor.setWhitespaceTag(start, end - start, " ");
 
         }
 

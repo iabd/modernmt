@@ -55,7 +55,7 @@ public class TagCollection implements Iterable<Tag> {
     protected void print() {
         int tagIdx = 0;
         for (Tag tag : this.list) {
-            System.out.println("Tag " + tagIdx + " " + tag.toString() + " " + tag.getType() + " " + tag.getPosition());
+            System.out.println("XMLTag " + tagIdx + " " + tag.toString() + " " + tag.getType() + " " + tag.getPosition());
             tagIdx++;
         }
     }

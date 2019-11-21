@@ -4,13 +4,16 @@
     <processor source="en fr it nl">eu.modernmt.processing.normalizers.apos.ApostropheNormalizer</processor>
 
     <!-- Space Placeholders -->
-    <processor>eu.modernmt.processing.normalizers.SpacePlaceholderEncoder</processor>
+<!--    <processor>eu.modernmt.processing.normalizers.SpacePlaceholderEncoder</processor>-->
 
     <processor>eu.modernmt.processing.string.SentenceConstructor</processor>
 
     <!-- XML preprocessors -->
     <processor>eu.modernmt.processing.xml.XMLTagIdentifier</processor>
     <processor>eu.modernmt.processing.xml.XMLEntityEscaper</processor>
+
+    <!-- Whitespace preprocessors -->
+    <processor>eu.modernmt.processing.normalizers.WhitespaceTagIdentifier</processor>
 
     <!-- String normalization -->
     <processor>eu.modernmt.processing.normalizers.RareCharsNormalizer</processor>

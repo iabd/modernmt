@@ -1,7 +1,7 @@
 package eu.modernmt.io;
 
 import eu.modernmt.model.Sentence;
-import eu.modernmt.model.Tag;
+import eu.modernmt.model.XMLTag;
 import eu.modernmt.model.Token;
 import eu.modernmt.model.Word;
 import eu.modernmt.xml.XMLUtils;
@@ -25,7 +25,7 @@ public class TokensOutputStream implements Closeable {
             Token token = iterator.next();
 
             String text;
-            if (token instanceof Tag) {
+            if (token instanceof XMLTag) {
                 text = token.getText();
             } else {
                 text = printPlaceholders || !token.hasText() ? token.getPlaceholder() : token.getText();

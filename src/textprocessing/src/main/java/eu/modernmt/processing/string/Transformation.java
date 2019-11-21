@@ -12,7 +12,7 @@ package eu.modernmt.processing.string;
  * - end index of the text to edit on the original string;
  * - a string with the text to edit itself;
  * - a string with the new text that must replace replace the text to edit (optional);
- * - a reference to the TokenFactory that suits the transformation (Word, Tag, etc).
+ * - a reference to the TokenFactory that suits the transformation (Word, XMLTag, etc).
  * <p>
  * If a transformation does not involve replacement, the replacement field is null.
  * In general, word settings do not involve replacement.
